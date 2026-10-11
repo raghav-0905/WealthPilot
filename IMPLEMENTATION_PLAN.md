@@ -177,12 +177,12 @@ Build `actors/wp-tax-compliance/src/main.py`:
 **✅ Checkpoint:** `python -m pytest tests/test_tax_calculator.py tests/test_contracts.py` — all pass.
 
 ### Phase 2 — Definition of Done
-- [ ] `wp-client-context` produces valid `ClientContext` with consistency and quality flags
-- [ ] `wp-research-policy` produces exposure-driven findings (different per client)
-- [ ] `wp-tax-compliance` vetoes an over-limit sale with actionable constraints
-- [ ] All deterministic tax calculators are unit-tested
-- [ ] All actor outputs validate against their schemas
-- [ ] Every tool call is logged to the trace dataset
+- [x] `wp-client-context` produces valid `ClientContext` with consistency and quality flags
+- [x] `wp-research-policy` produces exposure-driven findings (different per client)
+- [x] `wp-tax-compliance` vetoes an over-limit sale with actionable constraints
+- [x] All deterministic tax calculators are unit-tested
+- [x] All actor outputs validate against their schemas
+- [x] Every tool call is logged to the trace dataset
 
 ---
 
