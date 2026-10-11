@@ -2,5 +2,36 @@
   "title": "wp-tax-compliance input",
   "type": "object",
   "schemaVersion": 1,
-  "properties": {}
+  "properties": {
+    "proposal": {
+      "title": "Strategy Proposal",
+      "type": "object",
+      "description": "Candidate strategy proposal containing actions list (e.g. SELL actions, amounts, assets)"
+    },
+    "ClientContext": {
+      "title": "Client Context",
+      "type": "object",
+      "description": "Full reconciled ClientContext object including holdings, goals, and risk profile"
+    },
+    "researchFindings": {
+      "title": "Research Findings",
+      "type": "array",
+      "description": "List of relevant research findings from wp-research-policy",
+      "items": {
+        "type": "object"
+      }
+    },
+    "financialYear": {
+      "title": "Financial Year",
+      "type": "string",
+      "description": "Assessment financial year for tax calculation",
+      "default": "2026-27"
+    },
+    "clientId": {
+      "title": "Client ID",
+      "type": "string",
+      "description": "Client ID to load ClientContext if not explicitly provided",
+      "default": "CLIENT_001"
+    }
+  }
 }
