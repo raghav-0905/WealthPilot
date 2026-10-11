@@ -1,0 +1,6 @@
+{
+  "title": "wp-execution-monitor input",
+  "type": "object",
+  "schemaVersion": 1,
+  "properties": {}
+}

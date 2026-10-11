@@ -1,0 +1,6 @@
+{
+  "title": "wp-orchestrator input",
+  "type": "object",
+  "schemaVersion": 1,
+  "properties": {}
+}
