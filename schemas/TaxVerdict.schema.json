@@ -1,0 +1,40 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "TaxVerdict",
+  "type": "object",
+  "required": [
+    "verdict",
+    "estimatedTaxINR",
+    "harvestingOpportunities",
+    "constraints",
+    "complianceFlags",
+    "reasoning"
+  ],
+  "properties": {
+    "verdict": {
+      "type": "string",
+      "enum": ["APPROVE", "APPROVE_WITH_CONDITIONS", "VETO"]
+    },
+    "estimatedTaxINR": { "type": "number", "minimum": 0 },
+    "harvestingOpportunities": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["lot", "lossINR"],
+        "properties": {
+          "lot": { "type": "string" },
+          "lossINR": { "type": "number", "minimum": 0 }
+        }
+      }
+    },
+    "constraints": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "complianceFlags": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "reasoning": { "type": "string" }
+  }
+}

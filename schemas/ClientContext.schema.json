@@ -1,0 +1,63 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "ClientContext",
+  "type": "object",
+  "required": [
+    "clientId",
+    "netWorthINR",
+    "holdings",
+    "exposure",
+    "goals",
+    "riskProfile"
+  ],
+  "properties": {
+    "clientId": { "type": "string" },
+    "netWorthINR": { "type": "number", "minimum": 0 },
+    "holdings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["assetClass", "issuer", "valueINR", "pctOfNetWorth"],
+        "properties": {
+          "assetClass": { "type": "string" },
+          "issuer": { "type": "string" },
+          "valueINR": { "type": "number", "minimum": 0 },
+          "pctOfNetWorth": { "type": "number", "minimum": 0, "maximum": 100 }
+        }
+      }
+    },
+    "exposure": {
+      "type": "object",
+      "required": ["bySector", "byAssetClass", "topIssuerPct"],
+      "properties": {
+        "bySector": { "type": "object", "additionalProperties": { "type": "number" } },
+        "byAssetClass": { "type": "object", "additionalProperties": { "type": "number" } },
+        "topIssuerPct": { "type": "number", "minimum": 0, "maximum": 100 }
+      }
+    },
+    "goals": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["type", "amountINR", "horizonYears"],
+        "properties": {
+          "type": { "type": "string" },
+          "amountINR": { "type": "number", "minimum": 0 },
+          "horizonYears": { "type": "number", "minimum": 0 }
+        }
+      }
+    },
+    "riskProfile": {
+      "type": "string",
+      "enum": ["conservative", "moderate", "aggressive"]
+    },
+    "dataQualityFlags": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "profileConsistencyFlags": {
+      "type": "array",
+      "items": { "type": "string" }
+    }
+  }
+}

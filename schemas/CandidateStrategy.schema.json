@@ -1,0 +1,42 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "CandidateStrategy",
+  "type": "object",
+  "required": [
+    "id",
+    "name",
+    "actions",
+    "targetAllocation",
+    "expectedRiskMetrics",
+    "rationale"
+  ],
+  "properties": {
+    "id": { "type": "string" },
+    "name": { "type": "string" },
+    "actions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["type", "asset", "amountINR"],
+        "properties": {
+          "type": { "type": "string" },
+          "asset": { "type": "string" },
+          "amountINR": { "type": "number", "minimum": 0 },
+          "when": { "type": "string" }
+        }
+      }
+    },
+    "targetAllocation": {
+      "type": "object",
+      "additionalProperties": { "type": "number" }
+    },
+    "expectedRiskMetrics": {
+      "type": "object",
+      "properties": {
+        "topIssuerPctAfter": { "type": "number" },
+        "stressLoss": { "type": "number" }
+      }
+    },
+    "rationale": { "type": "string" }
+  }
+}

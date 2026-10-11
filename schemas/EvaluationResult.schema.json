@@ -1,0 +1,39 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "EvaluationResult",
+  "type": "object",
+  "required": [
+    "ranking",
+    "rejected"
+  ],
+  "properties": {
+    "ranking": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "rank", "totalScore", "criteria", "justification"],
+        "properties": {
+          "id": { "type": "string" },
+          "rank": { "type": "integer", "minimum": 1 },
+          "totalScore": { "type": "number", "minimum": 0, "maximum": 1 },
+          "criteria": {
+            "type": "object",
+            "additionalProperties": { "type": "number" }
+          },
+          "justification": { "type": "string" }
+        }
+      }
+    },
+    "rejected": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "reason"],
+        "properties": {
+          "id": { "type": "string" },
+          "reason": { "type": "string" }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "TraceEntry",
+  "type": "object",
+  "required": [
+    "actor",
+    "step",
+    "thought",
+    "tool",
+    "args",
+    "result_summary",
+    "timestamp"
+  ],
+  "properties": {
+    "actor": { "type": "string" },
+    "step": { "type": ["integer", "string"] },
+    "thought": { "type": "string" },
+    "tool": { "type": "string" },
+    "args": { "type": "object" },
+    "result_summary": { "type": "string" },
+    "timestamp": { "type": "string" }
+  }
+}
