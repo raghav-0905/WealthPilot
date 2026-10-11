@@ -2,5 +2,35 @@
   "title": "wp-research-policy input",
   "type": "object",
   "schemaVersion": 1,
-  "properties": {}
+  "properties": {
+    "exposure": {
+      "title": "Portfolio Exposure",
+      "type": "object",
+      "description": "Exposure breakdowns by sector, asset class, and top issuer percentage"
+    },
+    "goalSummary": {
+      "title": "Goal Summary",
+      "type": "string",
+      "description": "High-level description of client financial objective",
+      "default": "Rebalance portfolio tax-efficiently and manage concentration"
+    },
+    "lookbackDays": {
+      "title": "Lookback Days",
+      "type": "integer",
+      "description": "Number of days of policy/market updates to scan",
+      "default": 90
+    },
+    "maxTopics": {
+      "title": "Max Topics",
+      "type": "integer",
+      "description": "Maximum number of prioritized research topics to investigate",
+      "default": 3
+    },
+    "clientId": {
+      "title": "Client ID",
+      "type": "string",
+      "description": "Optional client identifier to look up exposure if not supplied directly",
+      "default": "CLIENT_001"
+    }
+  }
 }
