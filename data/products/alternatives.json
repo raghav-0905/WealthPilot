@@ -1,0 +1,61 @@
+[
+  {
+    "productId": "ALT_AIF_01",
+    "name": "Stellar India Pre-IPO Opportunity Fund (Cat II AIF)",
+    "category": "AIF_CAT_2",
+    "minimumInvestmentINR": 10000000,
+    "lockInYears": 3,
+    "expectedReturnPct": 18.5,
+    "riskLevel": "high",
+    "liquidity": "illiquid",
+    "managementFeePct": 2.0,
+    "carryPct": 20.0
+  },
+  {
+    "productId": "ALT_AIF_02",
+    "name": "Kotak Private Credit Fund (Cat II AIF)",
+    "category": "AIF_CAT_2",
+    "minimumInvestmentINR": 10000000,
+    "lockInYears": 4,
+    "expectedReturnPct": 14.0,
+    "riskLevel": "moderate_high",
+    "liquidity": "illiquid",
+    "managementFeePct": 1.75,
+    "carryPct": 15.0
+  },
+  {
+    "productId": "ALT_PMS_01",
+    "name": "Alpha Dynamic Midcap PMS",
+    "category": "PMS",
+    "minimumInvestmentINR": 5000000,
+    "lockInYears": 0,
+    "exitLoad": "1% within 12 months, nil thereafter",
+    "expectedReturnPct": 16.0,
+    "riskLevel": "high",
+    "liquidity": "liquid_T_plus_3",
+    "managementFeePct": 2.25
+  },
+  {
+    "productId": "ALT_REIT_01",
+    "name": "Embassy Office Parks REIT",
+    "category": "REIT",
+    "minimumInvestmentINR": 35000,
+    "lockInYears": 0,
+    "expectedYieldPct": 6.8,
+    "expectedCapitalGainPct": 4.5,
+    "riskLevel": "moderate",
+    "liquidity": "daily_exchange_traded",
+    "distributionFrequency": "quarterly"
+  },
+  {
+    "productId": "ALT_INVIT_01",
+    "name": "PowerGrid Infrastructure Investment Trust (InvIT)",
+    "category": "INVIT",
+    "minimumInvestmentINR": 100000,
+    "lockInYears": 0,
+    "expectedYieldPct": 9.2,
+    "riskLevel": "low_moderate",
+    "liquidity": "daily_exchange_traded",
+    "distributionFrequency": "quarterly"
+  }
+]

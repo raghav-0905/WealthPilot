@@ -1,0 +1,83 @@
+{
+  "clientId": "CLIENT_002",
+  "name": "Ananya Sen",
+  "persona": "Salaried Senior Corporate Executive",
+  "netWorthINR": 80000000,
+  "riskProfile": "aggressive",
+  "goals": [
+    {
+      "type": "capital_growth",
+      "amountINR": 40000000,
+      "horizonYears": 7,
+      "description": "Aggressive wealth compounding ahead of retirement"
+    },
+    {
+      "type": "international_diversification",
+      "amountINR": 10000000,
+      "horizonYears": 5,
+      "description": "Global equity allocation via RBI LRS window"
+    }
+  ],
+  "holdings": [
+    {
+      "assetClass": "listed_equity",
+      "issuer": "BAJAJ_FINANCE",
+      "valueINR": 16000000,
+      "pctOfNetWorth": 20.0
+    },
+    {
+      "assetClass": "listed_equity",
+      "issuer": "CHOLAMANDALAM_INV",
+      "valueINR": 8000000,
+      "pctOfNetWorth": 10.0
+    },
+    {
+      "assetClass": "international_equity",
+      "issuer": "VANGUARD_TOTAL_WORLD_ETF_USD",
+      "valueINR": 6400000,
+      "pctOfNetWorth": 8.0
+    },
+    {
+      "assetClass": "mutual_funds",
+      "issuer": "MIRAE_ASSET_LARGE_AND_MIDCAP",
+      "valueINR": 17600000,
+      "pctOfNetWorth": 22.0
+    },
+    {
+      "assetClass": "pms",
+      "issuer": "ASK_GROWTH_PMS",
+      "valueINR": 20000000,
+      "pctOfNetWorth": 25.0
+    },
+    {
+      "assetClass": "debt_fixed_income",
+      "issuer": "CORPORATE_FD_HDFC",
+      "valueINR": 12000000,
+      "pctOfNetWorth": 15.0
+    }
+  ],
+  "exposure": {
+    "bySector": {
+      "NBFC_Financials": 30.0,
+      "Global_Equities": 8.0,
+      "Diversified_Domestic_Equity": 47.0,
+      "Fixed_Income": 15.0
+    },
+    "byAssetClass": {
+      "listed_equity": 30.0,
+      "international_equity": 8.0,
+      "mutual_funds": 22.0,
+      "pms": 25.0,
+      "debt_fixed_income": 15.0
+    },
+    "topIssuerPct": 20.0
+  },
+  "dataQualityFlags": [],
+  "profileConsistencyFlags": [
+    "High sector concentration in NBFCs (30%) despite diversified fund holdings"
+  ],
+  "notes": {
+    "lrs": "Current FY remittance under LRS is $45,000 against $250,000 cap; TCS rate applies at 20% beyond ₹7 Lakh threshold",
+    "taxRegime": "New Tax Regime elected for salary income"
+  }
+}

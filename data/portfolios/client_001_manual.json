@@ -1,0 +1,25 @@
+{
+  "clientId": "CLIENT_001",
+  "manualAssets": [
+    {
+      "assetType": "commercial_real_estate",
+      "identifier": "BANGALORE_COMMERCIAL_UNIT",
+      "location": "Indiranagar, Bangalore",
+      "acquisitionYear": 2019,
+      "costOfAcquisitionINR": 6500000,
+      "estimatedMarketValueINR": 10000000,
+      "annualRentalIncomeINR": 600000,
+      "liquidityHorizon": "6 to 9 months sale cycle"
+    },
+    {
+      "assetType": "unlisted_equity",
+      "identifier": "TECH_STARTUP_XYZ_SERIES_A",
+      "companyName": "XYZ Automation Solutions Pvt Ltd",
+      "numberOfShares": 50000,
+      "investmentDate": "2023-04-10",
+      "costOfAcquisitionINR": 2500000,
+      "latestValuationINR": 5000000,
+      "restrictions": "ROFR and Tag-along rights in Shareholders Agreement"
+    }
+  ]
+}

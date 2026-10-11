@@ -1,0 +1,102 @@
+{
+  "clientId": "CLIENT_001",
+  "name": "Rajesh Varma",
+  "persona": "Promoter-Entrepreneur",
+  "netWorthINR": 120000000,
+  "riskProfile": "moderate",
+  "goals": [
+    {
+      "type": "liquidity",
+      "amountINR": 20000000,
+      "horizonYears": 2,
+      "description": "Liquidity for child's overseas business expansion"
+    },
+    {
+      "type": "wealth_preservation",
+      "amountINR": 50000000,
+      "horizonYears": 10,
+      "description": "Long-term family trust endowment"
+    }
+  ],
+  "holdings": [
+    {
+      "assetClass": "listed_equity",
+      "issuer": "PROMOTER_CO",
+      "valueINR": 45600000,
+      "pctOfNetWorth": 38.0
+    },
+    {
+      "assetClass": "listed_equity",
+      "issuer": "CLEANTECH_SOL",
+      "valueINR": 2000000,
+      "pctOfNetWorth": 1.67
+    },
+    {
+      "assetClass": "mutual_funds",
+      "issuer": "HDFC_LARGE_CAP_FUND",
+      "valueINR": 13000000,
+      "pctOfNetWorth": 10.83
+    },
+    {
+      "assetClass": "pms",
+      "issuer": "ALPHA_OPPORTUNITIES_PMS",
+      "valueINR": 18000000,
+      "pctOfNetWorth": 15.0
+    },
+    {
+      "assetClass": "aif",
+      "issuer": "STELLAR_GROWTH_AIF_CAT2",
+      "valueINR": 12000000,
+      "pctOfNetWorth": 10.0
+    },
+    {
+      "assetClass": "debt_fixed_income",
+      "issuer": "GOI_BONDS_7_18",
+      "valueINR": 14400000,
+      "pctOfNetWorth": 12.0
+    },
+    {
+      "assetClass": "real_estate",
+      "issuer": "BANGALORE_COMMERCIAL_UNIT",
+      "valueINR": 10000000,
+      "pctOfNetWorth": 8.33
+    },
+    {
+      "assetClass": "unlisted_equity",
+      "issuer": "TECH_STARTUP_XYZ_SERIES_A",
+      "valueINR": 5000000,
+      "pctOfNetWorth": 4.17
+    }
+  ],
+  "exposure": {
+    "bySector": {
+      "Technology": 42.17,
+      "Financials": 15.0,
+      "Diversified_Equity": 10.83,
+      "CleanTech": 1.67,
+      "Sovereign_Debt": 12.0,
+      "Real_Estate": 8.33,
+      "Alternatives": 10.0
+    },
+    "byAssetClass": {
+      "listed_equity": 39.67,
+      "mutual_funds": 10.83,
+      "pms": 15.0,
+      "aif": 10.0,
+      "debt_fixed_income": 12.0,
+      "real_estate": 8.33,
+      "unlisted_equity": 4.17
+    },
+    "topIssuerPct": 38.0
+  },
+  "dataQualityFlags": [
+    "STELLAR_GROWTH_AIF_CAT2 NAV is 45 days old"
+  ],
+  "profileConsistencyFlags": [
+    "Stated moderate risk vs 38% single-issuer concentration in PROMOTER_CO"
+  ],
+  "notes": {
+    "family": "Succession plan requested: establish private family trust for daughters",
+    "restrictions": "PROMOTER_CO board position limits sale windows to post-quarterly earnings"
+  }
+}

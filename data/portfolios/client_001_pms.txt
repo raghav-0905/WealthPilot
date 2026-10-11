@@ -1,0 +1,36 @@
+PORTFOLIO STATEMENT & PERFORMANCE REPORT
+Client Name: Rajesh Varma
+Client ID: CLIENT_001
+Statement Period: Quarter Ending September 2026
+
+--------------------------------------------------------------------------------
+1. PORTFOLIO MANAGEMENT SERVICES (PMS)
+Provider: Alpha Capital Wealth Advisors LLP
+Scheme: Alpha Opportunities Portfolio (Multi-Cap)
+Account Number: AC-PMS-99214
+Initial Capital Inflow: INR 12,000,000 (Allocated Oct 2024)
+Current Portfolio Value (AUM): INR 18,000,000
+Total Unrealized Gain: INR 6,000,000
+Cash in PMS Account: INR 450,000
+Exit Load: Nil (Completed 1 year holding)
+
+Key Discretionary Holdings in PMS:
+- ICICI Bank (18%)
+- Larsen & Toubro (15%)
+- Tata Motors (12%)
+- Infosys (10%)
+- Titan Company (8%)
+
+--------------------------------------------------------------------------------
+2. ALTERNATIVE INVESTMENT FUND (AIF)
+Provider: Stellar Asset Management India Ltd
+Scheme: Stellar Growth Opportunities Fund - Category II AIF
+Registration: IN/AIF2/23-24/0912
+Commitment Amount: INR 15,000,000
+Drawn Down to Date: INR 12,000,000
+Reported NAV per Unit: INR 1,240.50 (NAV Date: 45 Days Prior - As of 31-July-2026)
+Estimated Holding Valuation: INR 12,000,000
+Statutory Lock-in Period: 3 Years Mandatory Lock-in (Maturity Date: December 2028)
+Liquidity Terms: Illiquid, No secondary market transfers permitted before fund closure.
+Notice to Advisor: Early redemption is not allowed under Scheme Information Document.
+--------------------------------------------------------------------------------

@@ -1,0 +1,89 @@
+{
+  "rulePackVersion": "FY_2026_27_DEMO",
+  "effectiveDate": "2026-04-01",
+  "financialYear": "2026-27",
+  "disclaimer": "Illustrative tax rules for WealthPilot prototype demonstration. Verify against official Finance Act circulars before real advisory use.",
+  "capitalGains": {
+    "listed_equity": {
+      "holdingPeriodMonthsForLongTerm": 12,
+      "ltcgRatePct": 12.5,
+      "stcgRatePct": 20.0,
+      "annualLtcgExemptionINR": 125000,
+      "surchargeCapPct": 15.0
+    },
+    "equity_oriented_mutual_funds": {
+      "holdingPeriodMonthsForLongTerm": 12,
+      "ltcgRatePct": 12.5,
+      "stcgRatePct": 20.0,
+      "annualLtcgExemptionINR": 125000,
+      "surchargeCapPct": 15.0
+    },
+    "unlisted_equity": {
+      "holdingPeriodMonthsForLongTerm": 24,
+      "ltcgRatePct": 12.5,
+      "stcgRatePct": 30.0,
+      "annualLtcgExemptionINR": 0,
+      "indexationAvailable": false
+    },
+    "commercial_real_estate": {
+      "holdingPeriodMonthsForLongTerm": 24,
+      "ltcgRatePct": 12.5,
+      "stcgRatePct": 30.0,
+      "annualLtcgExemptionINR": 0,
+      "indexationAvailable": false
+    },
+    "debt_mutual_funds_and_bonds": {
+      "taxation": "SLAB_RATE",
+      "ltcgRatePct": 30.0,
+      "stcgRatePct": 30.0
+    }
+  },
+  "surchargeSlabs": [
+    {
+      "minIncomeINR": 0,
+      "maxIncomeINR": 5000000,
+      "ratePct": 0.0
+    },
+    {
+      "minIncomeINR": 5000001,
+      "maxIncomeINR": 10000000,
+      "ratePct": 10.0
+    },
+    {
+      "minIncomeINR": 10000001,
+      "maxIncomeINR": 20000000,
+      "ratePct": 15.0
+    },
+    {
+      "minIncomeINR": 20000001,
+      "maxIncomeINR": 50000000,
+      "ratePct": 25.0
+    },
+    {
+      "minIncomeINR": 50000001,
+      "maxIncomeINR": null,
+      "ratePct": 37.0
+    }
+  ],
+  "cessPct": 4.0,
+  "lossSetOffRules": {
+    "shortTermCapitalLoss": {
+      "allowedOffsets": ["STCG", "LTCG"],
+      "carryForwardYears": 8
+    },
+    "longTermCapitalLoss": {
+      "allowedOffsets": ["LTCG"],
+      "carryForwardYears": 8
+    }
+  },
+  "lrsLimits": {
+    "annualLimitUSD": 250000,
+    "tcsThresholdINR": 700000,
+    "tcsRateAboveThresholdPct": 20.0
+  },
+  "thresholds": {
+    "promoterConcentrationWarningPct": 25.0,
+    "singleIssuerConcentrationHardCapPct": 35.0,
+    "maxRecommendedSingleYearSaleINR": 20000000
+  }
+}

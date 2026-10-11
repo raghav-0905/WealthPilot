@@ -1,0 +1,14 @@
+{
+  "clientId": "CLIENT_002",
+  "manualAssets": [
+    {
+      "assetType": "corporate_fixed_deposits",
+      "identifier": "CORPORATE_FD_HDFC",
+      "institution": "HDFC Ltd Fixed Deposit",
+      "principalAmountINR": 10000000,
+      "currentAccruedValueINR": 12000000,
+      "interestRatePct": 7.75,
+      "maturityDate": "2027-08-15"
+    }
+  ]
+}
