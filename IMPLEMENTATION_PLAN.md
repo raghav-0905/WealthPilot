@@ -86,11 +86,11 @@ Build all code under `/shared`:
 **✅ Checkpoint:** `python -m pytest tests/test_shared.py` passes.
 
 ### Phase 1 — Definition of Done
-- [ ] Repo structure matches README §10
-- [ ] All 7 schemas exist and validate sample dummy data
-- [ ] All dummy data files created with intentional conflict scenarios
-- [ ] Shared utilities importable and tested
-- [ ] Every actor folder has valid Apify stubs
+- [x] Repo structure matches README §10
+- [x] All 7 schemas exist and validate sample dummy data
+- [x] All dummy data files created with intentional conflict scenarios
+- [x] Shared utilities importable and tested
+- [x] Every actor folder has valid Apify stubs
 
 ---
 
