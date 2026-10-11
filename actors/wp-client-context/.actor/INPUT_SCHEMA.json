@@ -2,5 +2,29 @@
   "title": "wp-client-context input",
   "type": "object",
   "schemaVersion": 1,
-  "properties": {}
+  "properties": {
+    "clientId": {
+      "title": "Client ID",
+      "type": "string",
+      "description": "Unique identifier for the client (e.g. CLIENT_001)",
+      "default": "CLIENT_001"
+    },
+    "sources": {
+      "title": "Sources",
+      "type": "array",
+      "description": "Optional list of portfolio statement files or data source paths",
+      "items": {
+        "type": "string"
+      }
+    },
+    "refreshProfile": {
+      "title": "Refresh Profile",
+      "type": "boolean",
+      "description": "Whether to force refresh profile and memory from source files",
+      "default": false
+    }
+  },
+  "required": [
+    "clientId"
+  ]
 }
