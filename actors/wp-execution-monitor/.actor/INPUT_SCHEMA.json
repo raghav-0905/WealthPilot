@@ -2,5 +2,28 @@
   "title": "wp-execution-monitor input",
   "type": "object",
   "schemaVersion": 1,
-  "properties": {}
+  "properties": {
+    "clientId": {
+      "title": "Client ID",
+      "type": "string",
+      "description": "Identifier for portfolio holding state",
+      "default": "CLIENT_001"
+    },
+    "approvedPlan": {
+      "title": "Approved Strategy Plan",
+      "type": "object",
+      "description": "The approved candidate strategy selected by advisor"
+    },
+    "approved": {
+      "title": "Human Advisor Approval",
+      "type": "boolean",
+      "description": "Mandatory human-in-the-loop gate; must be true to trigger trade execution",
+      "default": false
+    },
+    "monitoringConfig": {
+      "title": "Monitoring Configuration",
+      "type": "object",
+      "description": "Drift tolerance and polling settings"
+    }
+  }
 }
