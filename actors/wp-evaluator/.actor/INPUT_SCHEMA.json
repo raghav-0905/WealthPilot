@@ -2,5 +2,33 @@
   "title": "wp-evaluator input",
   "type": "object",
   "schemaVersion": 1,
-  "properties": {}
+  "properties": {
+    "clientId": {
+      "title": "Client ID",
+      "type": "string",
+      "description": "Identifier for client context loading",
+      "default": "CLIENT_001"
+    },
+    "candidates": {
+      "title": "Candidate Strategies",
+      "type": "array",
+      "description": "List of CandidateStrategy proposals from wp-strategy",
+      "items": {
+        "type": "object"
+      }
+    },
+    "ClientContext": {
+      "title": "Client Context",
+      "type": "object",
+      "description": "Full reconciled ClientContext object including goals and risk profile"
+    },
+    "taxVerdicts": {
+      "title": "Tax Verdicts",
+      "type": "array",
+      "description": "Tax verdicts and constraints from wp-tax-compliance",
+      "items": {
+        "type": "object"
+      }
+    }
+  }
 }
