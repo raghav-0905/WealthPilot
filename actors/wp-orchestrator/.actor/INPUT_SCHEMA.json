@@ -2,5 +2,30 @@
   "title": "wp-orchestrator input",
   "type": "object",
   "schemaVersion": 1,
-  "properties": {}
+  "properties": {
+    "clientId": {
+      "title": "Client ID",
+      "type": "string",
+      "description": "Unique client identifier for the scenario run",
+      "default": "CLIENT_001"
+    },
+    "goal": {
+      "title": "Advisory Goal",
+      "type": "string",
+      "description": "Client high-level wealth management objective",
+      "default": "Reduce concentration in my own company stock tax-efficiently; need ₹2 Cr liquidity in 2 years."
+    },
+    "mode": {
+      "title": "Execution Mode",
+      "type": "string",
+      "description": "Runtime execution mode (dummy or live)",
+      "default": "dummy"
+    },
+    "maxRevisionRounds": {
+      "title": "Maximum Revision Rounds",
+      "type": "integer",
+      "description": "Hard upper bound on strategy revision rounds before escalating to human advisor",
+      "default": 3
+    }
+  }
 }
