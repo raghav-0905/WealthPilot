@@ -2,5 +2,47 @@
   "title": "wp-strategy input",
   "type": "object",
   "schemaVersion": 1,
-  "properties": {}
+  "properties": {
+    "clientId": {
+      "title": "Client ID",
+      "type": "string",
+      "description": "Identifier for client context loading",
+      "default": "CLIENT_001"
+    },
+    "ClientContext": {
+      "title": "Client Context",
+      "type": "object",
+      "description": "Reconciled ClientContext object including holdings, goals, and risk profile"
+    },
+    "researchFindings": {
+      "title": "Research Findings",
+      "type": "array",
+      "description": "External market and regulatory findings relevant to portfolio",
+      "items": {
+        "type": "object"
+      }
+    },
+    "constraints": {
+      "title": "Constraints",
+      "type": "array",
+      "description": "Constraints imposed by Tax/Compliance veto for regeneration",
+      "items": {
+        "type": "string"
+      }
+    },
+    "harvestingOpportunities": {
+      "title": "Harvesting Opportunities",
+      "type": "array",
+      "description": "Tax-loss harvesting opportunities discovered to offset capital gains",
+      "items": {
+        "type": "object"
+      }
+    },
+    "numCandidates": {
+      "title": "Number of Candidates",
+      "type": "integer",
+      "description": "Target number of candidate strategies to generate",
+      "default": 4
+    }
+  }
 }
