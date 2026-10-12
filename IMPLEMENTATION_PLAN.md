@@ -265,11 +265,11 @@ Build `actors/wp-execution-monitor/src/main.py`:
 **✅ Checkpoint:** Actor executes a staged trade plan, detects a simulated promoter-pledge-increase event, and flags it as material for Orchestrator re-engagement.
 
 ### Phase 3 — Definition of Done
-- [ ] `wp-strategy` generates distinct candidates and regenerates on constraints
-- [ ] `wp-evaluator` ranks with per-criterion scores and rejects below-threshold candidates
-- [ ] `wp-orchestrator` runs scenario 001 with at least 1 replan and 1 arbitration
-- [ ] `wp-execution-monitor` simulates trades and detects trigger events
-- [ ] All four actors produce schema-valid outputs with trace logging
+- [x] `wp-strategy` generates distinct candidates and regenerates on constraints
+- [x] `wp-evaluator` ranks with per-criterion scores and rejects below-threshold candidates
+- [x] `wp-orchestrator` runs scenario 001 with at least 1 replan and 1 arbitration
+- [x] `wp-execution-monitor` simulates trades and detects trigger events
+- [x] All four actors produce schema-valid outputs with trace logging
 
 ---
 

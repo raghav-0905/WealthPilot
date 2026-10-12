@@ -253,7 +253,12 @@ def run_orchestrator(actor_input: Dict[str, Any]) -> Dict[str, Any]:
 
     # --- Step 8: Final Report Compilation ---
     ranked_options = evaluation_result.get("ranking", [])
-    rejected_options = evaluation_result.get("rejected", [])
+    rejected_options = list(evaluation_result.get("rejected", []))
+    if tax_verdict.get("verdict") == "VETO" and not any(r["id"] == s1_candidate.get("id", "S1") for r in rejected_options):
+        rejected_options.append({
+            "id": s1_candidate.get("id", "S1"),
+            "reason": "Tax cost exceeds client's stated tolerance and breaches single-year sale threshold (Vetoed by Tax & Compliance)"
+        })
 
     explanation_lines = [
         f"WealthPilot autonomous advisory review completed for {client_id}.",
