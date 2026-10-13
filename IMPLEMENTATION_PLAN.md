@@ -273,73 +273,134 @@ Build `actors/wp-execution-monitor/src/main.py`:
 
 ---
 
-## Phase 4 — Integration, Demo & Polish (Owner: Member D)
+## Phase 4 — Multi-Agent Integration & Scenario Execution (Owner: Member D)
 
-**Goal:** Wire everything together for the final demo, add a second client scenario to prove generality, build a simple trace viewer / advisor UI, and prepare all documentation and deployment artifacts.
+**Goal:** Wire everything together for the system pipeline, validate scenario 001 and scenario 002, and prepare foundational sample inputs.
 
 ### Iteration 1 — End-to-End Integration (Scenario 001)
-
-- Take the Orchestrator built in Phase 3 and run the **full** scenario 001 from README §7 as a single `apify run` command.
-- Fix any integration issues: mismatched schema fields between actors, KV store key collisions, trace ordering bugs.
-- Verify the complete flow produces the expected trace:
-  1. Orchestrator → Client Context (reconciles 5 sources, flags stale NAV + profile mismatch)
-  2. Orchestrator → Research (investigates sector + capital-gains policy based on exposure)
-  3. Orchestrator → Strategy (generates S1, S2, S3, S4)
-  4. Orchestrator → Tax (**vetoes S1**, returns constraint)
-  5. Orchestrator **replans** → Strategy again (with constraint, produces revised candidates)
-  6. Tax discovers harvesting opportunity → Orchestrator **replans again**
-  7. Orchestrator → Evaluator (ranks, rejects S1)
-  8. Orchestrator **arbitrates** (S4' AIF lock-in vs liquidity goal → picks S2' as primary)
-  9. Final report assembled
-- Save the complete trace as `docs/trace_examples/scenario_001_trace.json`.
-
-**✅ Checkpoint:** `apify run` on the Orchestrator for client_001 completes without errors, produces a final report, and the saved trace shows ≥1 veto, ≥2 replans, and ≥1 arbitration.
+- [x] Run full scenario 001 pipeline via Orchestrator
+- [x] Verify multi-agent sequence: Client Context -> Research -> Strategy -> Tax Veto -> Replanning -> Evaluator -> Arbitration -> Final Report
+- [x] Validate all intermediate outputs and FinalReport conform to JSON Schemas
 
 ### Iteration 2 — Second Client Scenario (Client 002)
+- [x] Verify client 002 portfolio reconciliation (NBFC concentration + LRS holdings)
+- [x] Ensure exposure-targeted research selects NBFC and RBI LRS topics
+- [x] Ensure Strategy generates rotation and offshore expansion candidates
+- [x] Ensure Tax gate verifies compliance without false-positive promoter vetoes
 
-- Run the full pipeline for `client_002` (salaried executive, heavy NBFC/financials, LRS holdings).
-- Verify that **different behavior emerges naturally**:
-  - Research investigates RBI rate policy + LRS/TCS rules (not the same topics as client_001).
-  - Strategy generates different candidate types (e.g., sector rotation away from financials, LRS rebalancing).
-  - Tax checks LRS limits instead of promoter-sale surcharge.
-- Fix any hardcoded assumptions that only work for client_001.
-- Save trace as `docs/trace_examples/scenario_002_trace.json`.
-- Write `tests/test_scenario_002.py` — a lightweight end-to-end test asserting the key behavioral differences.
-
-**✅ Checkpoint:** Two distinct client runs produce meaningfully different research topics, strategies, and tax checks — proving the system is goal-driven, not hardcoded.
-
-### Iteration 3 — Trace Viewer & Advisor-Facing UI
-
-- Build a simple **single-page web UI** (HTML + JS, served locally or as a static page) that:
-  - Loads a trace JSON file (from `docs/trace_examples/`).
-  - Displays the task graph as a timeline or flowchart (each actor call as a node, replans as branches).
-  - Shows each step's thought → tool → observation in an expandable panel.
-  - Highlights key events: vetoes (red), replans (orange), arbitrations (blue).
-  - Displays the final report with ranked options, per-criterion scores, and the explanation.
-- This is the **demo artifact** — what gets shown in the project presentation.
-- Place UI files in `docs/ui/`.
-
-**✅ Checkpoint:** Open `docs/ui/index.html` in a browser, load scenario_001 trace — the veto, replans, and arbitration are clearly visible and the final report is readable.
-
-### Iteration 4 — Documentation, Deployment & Cleanup
-
-- **README updates:** Ensure `README.md` reflects any changes made during implementation (new files, updated schemas, corrected commands).
-- **Deployment prep:**
-  - Verify each actor can be pushed to Apify with `apify push`.
-  - Create `data/sample_inputs/` with ready-to-use input JSONs for both scenarios.
-  - Ensure `.env.example` is up to date.
-- **Final documentation:**
-  - `docs/DEMO_SCRIPT.md` — step-by-step script for the project presentation (what to run, what to show, what to say at each step).
-  - `docs/ARCHITECTURE.md` — a concise version of the architecture with final mermaid diagrams.
-  - `docs/KNOWN_LIMITATIONS.md` — honest list from README §12 plus anything discovered during implementation.
-- **Code cleanup:** Remove dead code, ensure consistent formatting, add docstrings to all public functions.
-- **Final commit:** Tag as `v1.0-demo`.
-
-**✅ Checkpoint:** A fresh clone → `pip install` → `apify run` for scenario 001 works out of the box. Demo script is rehearsable.
+### Iteration 3 — Sample Input Payloads
+- [x] Create standardized runner inputs under `data/sample_inputs/` for both scenarios
 
 ### Phase 4 — Definition of Done
-- [ ] Scenario 001 runs end-to-end with veto, replans, and arbitration
-- [ ] Scenario 002 demonstrates different agentic behavior for a different client
-- [ ] Trace viewer UI renders the full reasoning chain visually
-- [ ] Demo script document is complete and rehearsable
-- [ ] All code is clean, documented, and deployable
+- [x] Scenario 001 runs end-to-end with veto, replans, and arbitration
+- [x] Scenario 002 demonstrates distinct agentic behavior for salaried executive persona
+- [x] Standard sample inputs created for reproducible runs
+
+---
+
+## Phase 5 — System Hardening, Trace Generation, Resiliency & Comprehensive Test Suite
+
+**Goal:** Harden the multi-agent system into an enterprise-ready, thoroughly tested advisory engine. Generate and persist validated benchmark trace artifacts, eliminate all scenario-specific hardcoded assumptions, enforce multi-round replanning resilience, and implement comprehensive test suites covering edge cases, tax boundaries, currency conversion, and event sentinels.
+
+### Iteration 1 — Trace Generation & Benchmark Artifacts
+- **Objective:** Generate complete, verifiable trace logs for both benchmark client scenarios and persist them as standard artifacts in `docs/trace_examples/`.
+- **Tasks:**
+  - Execute clean benchmark runs of `wp-orchestrator` for `CLIENT_001` and `CLIENT_002`.
+  - Extract the complete sequence of `TraceEntry` objects from the execution trace dataset.
+  - Enrich the trace payload with execution metadata, task graph summary, and final recommendations.
+  - Persist to:
+    - `docs/trace_examples/scenario_001_trace.json`
+    - `docs/trace_examples/scenario_002_trace.json`
+  - Validate that every entry in both trace files passes `TraceEntry.schema.json` validation.
+
+### Iteration 2 — Core Engine Generalization & Dynamic Explanation
+- **Objective:** Fix residual scenario-specific hardcoding across actors so explanations, constraints, and arbitrations adapt dynamically to any client profile.
+- **Tasks:**
+  - **Orchestrator Explanation Generalization:** Update `wp-orchestrator`'s explanation builder to dynamically synthesize tax notes based on the actual `TaxVerdict` (e.g., distinguishing between surcharge vetoes/harvesting for concentrated promoters vs. clean compliance approvals for diversified salaried executives).
+  - **Dynamic Arbitration Reasoning:** Ensure arbitration logs describe conflicts specific to the client's actual goals and asset lock-in constraints.
+  - **Robust Input Fallbacks:** Ensure actors gracefully handle partial or missing payloads (e.g. defaulting to storage or mock records safely).
+
+### Iteration 3 — Scenario 002 Dedicated Test Suite (`tests/test_scenario_002.py`)
+- **Objective:** Prove genuine goal-driven multi-agent behavior and generality through automated test assertions for `CLIENT_002`.
+- **Test Specifications:**
+  - `test_scenario_002_end_to_end()`: Full pipeline execution asserting:
+    - Schema conformity of `FinalReport`
+    - Absence of false-positive tax vetoes (clean `APPROVE` or `APPROVE_WITH_CONDITIONS`)
+    - Absence of unnecessary replan cycles when initial strategies are compliant
+    - High ranking for `S1_NBFC_ROTATION` and `S2_LRS_EXPANSION`
+  - `test_scenario_002_research_differentiation()`: Verifies that `wp-research-policy` investigates NBFC headwinds, RBI LRS caps, and macro interest rates (contrasting with mid-cap tech and promoter surcharge for Client 001).
+  - `test_scenario_002_strategy_generation()`: Verifies generation of NBFC rotation, global diversification, and balanced growth candidates.
+  - `test_scenario_002_tax_compliance()`: Verifies LRS limit tracking and TCS implications.
+
+### Iteration 4 — Comprehensive System Resilience & Edge-Case Test Suite (`tests/test_phase5_integration.py`)
+- **Objective:** Stress-test the multi-agent system across edge cases, failure modes, tax cliff conditions, and execution sentinels.
+- **Test Specifications:**
+  - **Multi-Round Replan Bounding:** Verify that `wp-orchestrator` respects `maxRevisionRounds` and terminates gracefully if proposals cannot satisfy constraints within budget.
+  - **Tax Calculator Boundary Conditions:**
+    - Verify LTCG vs STCG holding period threshold (12 months boundary).
+    - Verify Surcharge rate transitions across ₹50L, ₹1 Cr, and ₹2 Cr gain thresholds.
+    - Verify equity gain surcharge cap (15% cap under Section 112A).
+  - **Tax-Loss Harvesting Boundary Checks:** Verify behavior when no harvestable loss lots exist in the portfolio.
+  - **Multi-Currency Normalization:** Verify foreign asset valuation (USD/EUR conversion to INR in ClientContext).
+  - **Human Gate & Sentinel Re-engagement:** Verify `wp-execution-monitor` blocks execution when `approved=False` and generates an orchestrator re-engagement trigger upon sensing promoter pledge spikes.
+  - **Contract Integrity Across Actors:** Verify seamless handoffs between actors without schema breakage.
+
+### Iteration 5 — Environment Configuration & Developer Onboarding
+- **Objective:** Finalize `.env` configuration and provide clear key management guidelines for dummy vs. live deployment.
+- **Tasks:**
+  - Verify `.env` file structure and safe defaults.
+  - Document key requirements, sourcing links, and purpose for Apify, OpenRouter, OpenAI, Anthropic, and Gemini.
+
+### Phase 5 — Definition of Done
+- [x] `data/sample_inputs/` contains valid input payloads for Scenario 001 and Scenario 002
+- [x] Validated traces saved to `docs/trace_examples/scenario_001_trace.json` and `scenario_002_trace.json`
+- [x] `tests/test_scenario_002.py` implemented and passing (100% green)
+- [x] `tests/test_phase5_integration.py` implemented covering edge cases and resilience (100% green)
+- [x] All existing test suites continue to pass without regression
+- [x] `.env` file generated and key procurement guide documented
+
+---
+
+## Phase 6 — UI & Frontend: Interactive Trace Viewer & Advisor Cockpit
+
+**Goal:** Build a state-of-the-art, visually stunning advisor-facing single-page application (SPA) in `docs/ui/` to demonstrate WealthPilot's multi-agent reasoning, replanning loops, and portfolio recommendations for academic presentations and client demos.
+
+### Iteration 1 — Architecture & Design System
+- Modern, responsive SPA using Vanilla HTML5, CSS3, and JavaScript (ES6 Modules) located in `docs/ui/`.
+- Premium design system: Dark-mode-first aesthetic, harmonious HSL color palette, typography via Inter font, glassmorphism cards, and smooth micro-animations.
+- Independent execution: Runs locally with zero build dependencies via any static server or direct file opening.
+
+### Iteration 2 — Multi-Agent Execution Graph & Flow Timeline
+- Interactive DAG / timeline visualizer representing agent execution steps:
+  - Actor nodes: Client Context, Research & Policy, Strategy, Tax Compliance, Evaluator, Execution Monitor.
+  - Dynamic visual markers:
+    - 🔴 **Tax Vetoes**: Distinct alert badge showing reason, rejected candidate, and constraint feedback loop.
+    - 🟠 **Replanning Cycles**: Branching arrow illustrating iterative strategy regeneration.
+    - 🔵 **Arbitration Decisions**: Highlighting conflict resolution (e.g. AIF lock-in vs. liquidity horizon).
+    - 🟢 **Execution Sentinel**: Trigger events and human-in-the-loop approval gates.
+
+### Iteration 3 — Step-by-Step Inspector (Plan → Act → Observe → Reflect)
+- Expandable drawer/modal inspecting any selected trace node:
+  - Agent Persona & Role Description.
+  - Cognitive state breakdown: Thought process, Tool called, Inputs/Parameters, Output Summary.
+  - Raw JSON contract viewer with copy-to-clipboard functionality.
+
+### Iteration 4 — Advisor Cockpit & Final Report Dashboard
+- Executive Summary view displaying:
+  - Client profile banner (Net worth, risk rating, stated liquidity goals).
+  - Ranked Strategy Proposals with per-criterion radar/bar breakdown (Post-tax return, Liquidity, Concentration reduction, Stress resilience, Compliance).
+  - Tax & Harvesting Impact card (estimated capital gains tax, loss offsets, net savings).
+  - Target Asset Allocation comparison (Current vs. Proposed).
+  - Simulated Execution & Monitoring Terminal with live mock trade orders.
+
+### Iteration 5 — Scenario Switcher & Local Trace File Loader
+- Pre-loaded instant selector between **Scenario 001 (Concentrated Promoter)** and **Scenario 002 (Salaried Executive)**.
+- Drag-and-drop / file input loader to inspect any custom `TraceEntry` JSON file generated from live Apify runs.
+
+### Phase 6 — Definition of Done
+- [ ] `docs/ui/index.html`, `docs/ui/style.css`, and `docs/ui/app.js` implemented
+- [ ] Scenario 001 and Scenario 002 traces render seamlessly in the browser
+- [ ] Step-by-step inspector displays thoughts, tools, and observations clearly
+- [ ] Key agentic events (veto, replan, arbitration) are visually highlighted
+- [ ] UI is fully responsive and interactive with zero compilation errors
+
