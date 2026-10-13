@@ -260,11 +260,18 @@ def run_orchestrator(actor_input: Dict[str, Any]) -> Dict[str, Any]:
             "reason": "Tax cost exceeds client's stated tolerance and breaches single-year sale threshold (Vetoed by Tax & Compliance)"
         })
 
+    if tax_verdict.get("verdict") == "VETO":
+        tax_summary = "Tax Optimization: Enforced ₹2.0 Cr annual realization cap to avoid upper surcharge slabs and harvested loss offset in CLEANTECH_SOL."
+    elif tax_verdict.get("verdict") == "APPROVE_WITH_CONDITIONS":
+        tax_summary = f"Tax Optimization: Approved with loss harvesting recommendations to offset capital gains liability."
+    else:
+        tax_summary = f"Tax Optimization: Verified compliance with statutory LTCG/STCG limits and surcharge brackets (Estimated Tax: ₹{tax_verdict.get('estimatedTaxINR', 0):,.0f})."
+
     explanation_lines = [
         f"WealthPilot autonomous advisory review completed for {client_id}.",
         f"Primary Recommendation: Strategy {ranked_options[0]['id'] if ranked_options else 'None'} "
         f"({ranked_options[0]['justification'] if ranked_options else ''}).",
-        f"Tax Optimization: Enforced ₹2.0 Cr annual realization cap to avoid upper surcharge slabs and harvested loss offset in CLEANTECH_SOL.",
+        tax_summary,
         f"Rejected Strategies: {', '.join(r['id'] + ' (' + r['reason'] + ')' for r in rejected_options) if rejected_options else 'None'}."
     ]
     explanation = " ".join(explanation_lines)
