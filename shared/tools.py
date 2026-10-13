@@ -54,12 +54,22 @@ def tool(name: Optional[str] = None, actor_name: Optional[str] = None):
 
 def dummy_read(relative_path: str) -> Any:
     """
-    Universal reader for dummy mode datasets.
+    Universal reader for dummy mode datasets with Path Traversal protection.
     Locates files in DATA_DIR or RULES_DIR and parses them based on file extension.
     """
-    target = DATA_DIR / relative_path
-    if not target.exists():
-        target = RULES_DIR / relative_path
+    data_dir_resolved = DATA_DIR.resolve()
+    rules_dir_resolved = RULES_DIR.resolve()
+
+    target = (DATA_DIR / relative_path).resolve()
+    is_safe = target.is_relative_to(data_dir_resolved)
+
+    if not is_safe or not target.exists():
+        target = (RULES_DIR / relative_path).resolve()
+        is_safe = target.is_relative_to(rules_dir_resolved)
+
+    if not is_safe:
+        raise PermissionError(f"Access denied: Path traversal attempted outside authorized roots: {relative_path}")
+
     if not target.exists():
         raise FileNotFoundError(f"File not found in DATA_DIR or RULES_DIR: {relative_path}")
 

@@ -7,6 +7,25 @@ from typing import Dict, Any, Optional, List
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 from schemas.validate import validate_data
 
+def _sanitize_trace_payload(data: Any) -> Any:
+    """Masks secret tokens and credentials from trace logs to prevent telemetry leakage."""
+    import re
+    if isinstance(data, dict):
+        sanitized = {}
+        for k, v in data.items():
+            if any(s in str(k).lower() for s in ("token", "api_key", "secret", "password", "auth")):
+                sanitized[k] = "***REDACTED***"
+            else:
+                sanitized[k] = _sanitize_trace_payload(v)
+        return sanitized
+    elif isinstance(data, list):
+        return [_sanitize_trace_payload(item) for item in data]
+    elif isinstance(data, str):
+        masked = re.sub(r'apify_api_[A-Za-z0-9_]+', 'apify_api_***REDACTED***', data)
+        masked = re.sub(r'gsk_[A-Za-z0-9_]+', 'gsk_***REDACTED***', masked)
+        return masked
+    return data
+
 class TraceLogger:
     """Logs agent execution traces and validates against TraceEntry.schema.json."""
 
@@ -30,10 +49,10 @@ class TraceLogger:
         entry = {
             "actor": self.actor_name,
             "step": step,
-            "thought": thought,
+            "thought": _sanitize_trace_payload(thought),
             "tool": tool,
-            "args": args or {},
-            "result_summary": result_summary,
+            "args": _sanitize_trace_payload(args or {}),
+            "result_summary": _sanitize_trace_payload(result_summary),
             "timestamp": timestamp
         }
 
