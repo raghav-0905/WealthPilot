@@ -157,7 +157,7 @@ def run_orchestrator(actor_input: Dict[str, Any]) -> Dict[str, Any]:
     tax_verdicts = [tax_verdict]
 
     # --- Step 5: Replanning Triggered by Tax Veto & Opportunistic Harvesting ---
-    if tax_verdict.get("verdict") == "VETO":
+    if tax_verdict.get("verdict") == "VETO" and task_graph["revisionRounds"] < max_revision_rounds:
         task_graph["revisionRounds"] += 1
         constraints = tax_verdict.get("constraints", [])
         harvesting_opps = tax_verdict.get("harvestingOpportunities", [])
