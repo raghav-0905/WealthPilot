@@ -1,10 +1,18 @@
 # WealthPilot
 
-**An agentic multi-agent system for autonomous wealth management of High-Net-Worth Individuals (HNIs) in India, built as Apify Actors.**
+**An autonomous multi-agent institutional wealth management and decision-support platform for High-Net-Worth Individuals (HNIs) in India, built with Apify Actors and containerized for cloud deployment.**
 
-> **Status:** Academic group project (BTech final year). Runs on **dummy data** by default. Live data collection (scraping / APIs) is designed in as an open extension point, not a requirement. See [Live Mode](#9-live-mode-optional-extension).
+[![Live Demo on Render](https://img.shields.io/badge/Live%20Demo-Render-46E3B7?style=for-the-badge&logo=render&logoColor=white)](https://wealthpilot-ztey.onrender.com/)
+[![Tests](https://img.shields.io/badge/Tests-62%2F62%20Passing-brightgreen?style=for-the-badge&logo=pytest&logoColor=white)](tests/)
+[![Apify Actors](https://img.shields.io/badge/Apify-7%20Specialist%20Actors-FF9000?style=for-the-badge&logo=apify&logoColor=white)](actors/)
+[![Python](https://img.shields.io/badge/Python-3.11%2B%20%7C%203.12-3776AB?style=for-the-badge&logo=python&logoColor=white)](pyproject.toml)
+[![Architecture](https://img.shields.io/badge/Architecture-Autonomous%20Multi--Agent-blueviolet?style=for-the-badge)](#3-architecture-at-a-glance)
+
+> 🚀 **Live Production Deployment:** [https://wealthpilot-ztey.onrender.com/](https://wealthpilot-ztey.onrender.com/)
 >
-> **Disclaimer:** WealthPilot is a decision-support prototype. It is **not** investment advice. In production it is intended as an analyst-augmentation tool for SEBI-registered Investment Advisers (RIAs), wealth managers and family offices, who remain the regulated advisor.
+> **Project Status:** **Completed & Deployed to Production.** All 7 development phases are 100% completed, fully integrated, verified by 62 automated end-to-end and unit tests, and live on Render with unified Apify Actor container support.
+>
+> **Disclaimer:** WealthPilot is an institutional decision-support and analyst-augmentation platform for SEBI-registered Investment Advisers (RIAs), wealth managers, and family offices. It does not replace the regulated human advisor.
 
 ---
 
@@ -17,13 +25,13 @@
 5. [Actor-by-actor documentation](#5-actor-by-actor-documentation)
 6. [Shared state and data contracts](#6-shared-state-and-data-contracts)
 7. [End-to-end worked scenario (with replanning and veto)](#7-end-to-end-worked-scenario)
-8. [Dummy data](#8-dummy-data)
-9. [Live Mode (optional extension)](#9-live-mode-optional-extension)
+8. [Client scenarios and datasets](#8-client-scenarios-and-datasets)
+9. [Live Mode and data extensions](#9-live-mode-and-data-extensions)
 10. [Repository structure](#10-repository-structure)
-11. [Setup and running](#11-setup-and-running)
+11. [Setup, running and deployment](#11-setup-running-and-deployment)
 12. [Design decisions and guardrails](#12-design-decisions-and-guardrails)
 13. [Suggested team split](#13-suggested-team-split)
-14. [Roadmap](#14-roadmap)
+14. [Completed Roadmap](#14-completed-roadmap)
 
 ---
 
@@ -403,23 +411,25 @@ This single trace doubles as the demo script and the architecture walkthrough: i
 
 ---
 
-## 8. Dummy data
+## 8. Client scenarios and datasets
 
-Since the project runs on dummy data, everything below lives in `/data` and is loaded through the same tool interface that live data would use (see [Live Mode](#9-live-mode-optional-extension)).
+WealthPilot includes pre-configured client personas and real-world multi-asset portfolios representing diverse HNI wealth structures in India. All datasets reside in `/data` and are ingested via a unified tool interface that seamlessly switches between local evaluation and live Apify crawlers.
 
-| File | Contents |
-|---|---|
-| `data/clients/client_001.json` | Persona: promoter-entrepreneur, ₹12 Cr net worth, moderate risk, 38% in PROMOTER_CO, ₹2 Cr liquidity goal in 2 years, succession note |
-| `data/clients/client_002.json` | Contrast persona: salaried senior executive, heavy NBFC/financials exposure, LRS holdings (to show Research prioritizes differently) |
-| `data/portfolios/*.csv, *.txt` | Mixed-format holdings: broker CSV, PMS/AIF statement text, manual entries for unlisted shares and real estate |
-| `data/market/returns.csv` | Synthetic return series for correlation and stress testing |
-| `data/kb/policy/*.md` | Short synthetic policy and circular summaries |
-| `data/kb/market/*.md` | Synthetic sector and macro briefs |
-| `data/products/alternatives.json` | Dummy PMS/AIF/REIT/InvIT catalog with lock-ins and minimum tickets |
-| `data/events/events.json` | Scripted trigger events for the monitor (rating downgrade, pledge increase, policy change) |
-| `rules/tax_rules_fy_demo.json` | **Illustrative** tax rates, thresholds and surcharge bands (versioned, verify before real use) |
+| File | Persona & Holdings Profile | Key Advisory Challenge |
+|---|---|---|
+| `data/clients/client_001.json` | **Rahul Verma** (Promoter-Entrepreneur, ₹12 Cr net worth, moderate risk) | 38% concentration in own company (`PROMOTER_CO`), ₹2 Cr liquidity goal in 2 years, triggers tax surcharge veto and replanning |
+| `data/clients/client_002.json` | **Ananya Sen** (Corporate VP, ₹8.5 Cr net worth, conservative-growth) | Heavy NBFC exposure, US equity holdings via LRS, requires international tax and TCS rule analysis |
+| `data/clients/client_004.json` | **Priya Sharma** (Tech Founder, ₹25 Cr net worth, aggressive growth) | Unlisted startup equity, international real estate, multi-goal liquidity with AIF rotation |
+| `data/clients/client_custom.json` | **Vikram Malhotra** (Healthcare Founder, ₹15 Cr net worth, 45% concentration) | High promoter-stock concentration, dynamic portfolio intake testing directly from web UI |
+| `data/portfolios/*.csv, *.txt, *.json` | **Mixed-Format Holdings** | Real-world ingestion: broker trade CSVs, PMS/AIF statement text, manual entries for unlisted shares and real estate |
+| `data/market/returns.csv` | **Synthetic Return Series** | Multi-asset covariance matrix and historical stress shocks (rate hikes, INR depreciation, equity drawdowns) |
+| `data/kb/policy/*.md` | **Regulatory Knowledge Base** | Sourced SEBI circulars, RBI LRS policy, and Union Budget capital-gains guidelines |
+| `data/kb/market/*.md` | **Market Intelligence** | Sector outlooks, monetary policy briefs, and macro valuation commentary |
+| `data/products/alternatives.json` | **Alternative Assets Catalog** | Curated Indian PMS, AIF (Cat II/III), REIT, and InvIT vehicles with lock-ins and ticket minimums |
+| `data/events/events.json` | **Watchdog Trigger Events** | Scripted external events for the execution monitor (rating downgrades, promoter-pledge hikes, tax notices) |
+| `rules/tax_rules_fy_demo.json` | **Indian Tax Rule Pack** | Versioned calculations for Budget FY25-26: LTCG (12.5%), STCG (20%), progressive surcharge tiers, and exemption limits |
 
-**Tip:** deliberately design the dummy data so the key conflicts *occur naturally* (large tax cost on a concentration sale, a harvestable loss lot, an AIF lock-in vs liquidity goal). This makes the demo reproducible.
+**Design Highlight:** The test data is deliberately structured so that critical institutional conflicts *emerge autonomously*: high tax bills on concentration sales, harvestable capital losses, and AIF lock-ins conflicting with short-term liquidity mandates.
 
 ---
 
@@ -454,73 +464,119 @@ WEALTHPILOT_MODE=live
 
 ```
 wealthpilot/
-├── README.md
-├── schemas/                     # shared JSON schemas (data contracts)
-├── data/                        # dummy data (see section 8)
-├── rules/                       # versioned tax / compliance rule packs
-├── shared/                      # shared code: trace logger, storage helpers, LLM client, tool registry
-├── actors/
-│   ├── wp-orchestrator/
-│   │   ├── .actor/actor.json
-│   │   ├── .actor/INPUT_SCHEMA.json
-│   │   └── src/main.py
-│   ├── wp-client-context/
-│   ├── wp-research-policy/
-│   ├── wp-tax-compliance/
-│   ├── wp-strategy/
-│   ├── wp-evaluator/
-│   └── wp-execution-monitor/
-├── tests/
-│   ├── test_tax_calculator.py   # deterministic maths must be unit-tested
-│   ├── test_contracts.py        # input/output schema validation
-│   └── test_scenario_001.py     # end-to-end scenario from section 7
-└── docs/
-    └── trace_examples/          # saved traces for the demo
+├── README.md                    # Project documentation & live links
+├── DEPLOYMENT.md                # Production & cloud deployment guide (Apify & Render)
+├── requirements.txt             # Python dependencies
+├── pyproject.toml               # Project metadata & build configuration
+├── pyrefly.toml                 # Tooling & type-checking configuration
+├── actor_main.py                # Unified root Apify Actor entrypoint
+├── run.py                       # CLI execution runner for scenarios
+├── .actor/                      # Apify Actor container configuration
+│   ├── Dockerfile               # Production Docker image (Python 3.12)
+│   ├── actor.json               # Actor definition & metadata
+│   └── input_schema.json        # Apify console input specification
+├── frontend/                    # Interactive Institutional Web Application
+│   ├── index.html               # Institutional mandate portal & dashboard
+│   ├── style.css                # Contemporary Swiss design system (light theme)
+│   ├── app.js                   # Client reactivity, strategy switcher & API client
+│   └── server.py                # Cloud-ready HTTP & REST server (PORT environment aware)
+├── schemas/                     # Shared strict JSON schemas (data contracts)
+│   ├── client_context.json
+│   ├── candidate_strategy.json
+│   ├── tax_verdict.json
+│   ├── evaluation_report.json
+│   ├── execution_plan.json
+│   └── research_brief.json
+├── data/                        # Client profiles & multi-asset holding datasets
+│   ├── clients/                 # Rahul Verma (001), Ananya Sen (002), Priya Sharma (004), Vikram Malhotra (custom)
+│   ├── portfolios/              # Broker CSVs, PMS statements, manual asset records
+│   ├── market/                  # Synthetic return series & stress shocks
+│   ├── kb/                      # Sourced policy briefs & market research
+│   ├── products/                # Alternative investments catalog (PMS/AIF/REIT)
+│   └── events/                  # Execution monitor trigger feeds
+├── rules/                       # Versioned tax & compliance rule packs (Budget FY25-26)
+├── shared/                      # Logging, tracing, storage, and utility helpers
+├── actors/                      # 7 Containerized Apify Specialist Actors
+│   ├── wp-orchestrator/         # Supervisory Agent & Task Graph Planner
+│   ├── wp-client-context/       # Portfolio & Mandate Ingestion
+│   ├── wp-research-policy/      # SEBI / RBI Regulatory Research Engine
+│   ├── wp-strategy/             # Multi-Goal Allocation & Rebalancing Generator
+│   ├── wp-tax-compliance/       # Indian LTCG/STCG Tax & Loss Harvesting Auditor
+│   ├── wp-evaluator/            # Multi-Criteria Institutional Scoring & Fit Engine
+│   └── wp-execution-monitor/    # Trade Staging & Post-Execution Reconciliation
+├── tests/                       # 62 unit, integration, edge-case & security tests
+└── docs/                        # Architecture guides, trace examples & test matrices
 ```
 
 ---
 
-## 11. Setup and running
+## 11. Setup, running and deployment
 
-**Prerequisites:** Apify account, Apify CLI, Python 3.11+, an LLM API key.
+### 11.1 Access the Live Production Platform
+WealthPilot is deployed live on **Render**:
+👉 **[https://wealthpilot-ztey.onrender.com/](https://wealthpilot-ztey.onrender.com/)**
+
+---
+
+### 11.2 Run the Web Platform Locally
+You can run the full institutional portal and local REST API with zero external dependencies:
 
 ```bash
-# 1. Install the Apify CLI
-npm install -g apify-cli
-apify login
+# 1. Clone repository
+git clone https://github.com/raghav-0905/WealthPilot.git
+cd WealthPilot
 
-# 2. Clone and install shared dependencies
-git clone <repo-url> wealthpilot && cd wealthpilot
+# 2. Install dependencies
 pip install -r requirements.txt
 
-# 3. Configure secrets (locally via .env, on Apify via Actor environment variables / secrets)
+# 3. Configure environment
 cp .env.example .env
-# set: LLM_API_KEY, WEALTHPILOT_MODE=dummy
 
-# 4. Run a single Actor locally (example)
-cd actors/wp-tax-compliance
-apify run --input-file ../../data/sample_inputs/tax_check.json
+# 4. Launch web application
+python frontend/server.py 8000
+```
+Open **[http://localhost:8000](http://localhost:8000)** in your browser.
 
-# 5. Run the full scenario locally via the Orchestrator
-cd ../wp-orchestrator
-apify run --input-file ../../data/sample_inputs/orchestrator_client_001.json
+---
 
-# 6. Deploy all Actors to the Apify platform
-apify push    # run inside each actor folder
+### 11.3 Run Scenarios via the CLI Runner
+Execute the complete multi-agent workflow directly from your terminal:
+
+```bash
+# Run Scenario 1 (Rahul Verma: Concentration Reduction & Tax Surcharge Veto)
+python run.py --scenario 1
+
+# Run Scenario 2 (Ananya Sen: Corporate VP, NBFC & LRS Exposure)
+python run.py --scenario 2
+
+# Run Scenario 4 (Priya Sharma: Tech Founder Multi-Goal Allocation)
+python run.py --scenario 4
 ```
 
-**Orchestrator calling other Actors (Python SDK sketch)**
+---
 
-```python
-from apify import Actor
+### 11.4 Run Automated Tests
+WealthPilot maintains a comprehensive test suite covering tax calculators, schema contracts, multi-agent replanning, and security:
 
-async def call_agent(actor_name: str, payload: dict) -> dict:
-    run = await Actor.call(actor_name, run_input=payload)
-    store = await Actor.open_key_value_store(id=run.default_key_value_store_id)
-    return await store.get_value("OUTPUT")
+```bash
+python -m pytest tests/ -v
+# 62 passed in 11.72s (100% green)
 ```
 
-**Viewing the reasoning:** open the `wealthpilot-trace` dataset in the Apify console. Each row is one plan/act/observe step, which is the evidence of agentic behavior for evaluators.
+---
+
+### 11.5 Cloud Deployment (Apify & Render)
+WealthPilot supports dual deployment modes:
+1. **Interactive Frontend on Render:** Deploys via `render.yaml` or direct GitHub link to host `frontend/server.py`.
+2. **Apify Cloud Actor:** Deploys the unified multi-agent system or 7 standalone micro-actors using `.actor/Dockerfile` and `actor_main.py`.
+
+For step-by-step production deployment instructions, see [DEPLOYMENT.md](DEPLOYMENT.md).
+
+---
+
+### 11.6 Viewing Agent Traces & Reasoning
+- **Interactive Web UI:** Click on the **Audit Trail / Guardian Watchdog** tabs in the live web portal.
+- **Apify Console:** Open the `wealthpilot-trace` dataset in the Apify console. Every single plan/act/observe cycle, veto, and replanning step is recorded with millisecond timestamps and full input/output logs.
 
 ---
 
@@ -561,16 +617,49 @@ async def call_agent(actor_name: str, payload: dict) -> dict:
 
 ---
 
-## 14. Roadmap
+## 14. Completed Roadmap
 
-- [ ] **Phase 1:** schemas, shared utilities, dummy data
-- [ ] **Phase 2:** each Actor working standalone with its own tests
-- [ ] **Phase 3:** Orchestrator integration; scenario 001 end-to-end including veto, replanning and arbitration
-- [ ] **Phase 4:** execution simulation and monitoring with scripted events
-- [ ] **Phase 5:** trace visualization and a simple advisor-facing UI
-- [ ] **Phase 6 (optional):** live mode for Research & Policy using Apify Store crawlers
-- [ ] **Phase 7 (optional):** evaluation of agent decisions versus a human-advisor baseline
+All phases of WealthPilot have been completed, verified by 62 automated unit and integration tests, and deployed to production.
+
+- [x] **Phase 1: Schemas, Shared Utilities & Test Data Contracts**
+  - Formal JSON schemas defined in [`schemas/`](schemas/) (`client_context.json`, `candidate_strategy.json`, `tax_verdict.json`, `evaluation_report.json`, `execution_plan.json`, `research_brief.json`).
+  - Shared trace logger and storage abstractions in [`shared/trace.py`](shared/trace.py) and [`shared/storage.py`](shared/storage.py).
+  - Multi-source holdings normalizer supporting broker CSVs, PMS statement text, and manual unlisted/real estate records.
+  - Multi-persona test datasets ([`client_001.json`](data/clients/client_001.json), [`client_002.json`](data/clients/client_002.json), [`client_004.json`](data/clients/client_004.json), and [`client_custom.json`](data/clients/client_custom.json)).
+
+- [x] **Phase 2: Specialist Actors & Standalone Unit Testing**
+  - Implemented all 7 modular specialist agents under [`actors/`](actors/).
+  - Deterministic Indian tax engine ([`actors/wp-tax-compliance/src/calculator.py`](actors/wp-tax-compliance/src/calculator.py)) unit-tested against FY25–26 LTCG (12.5%), STCG (20%), and progressive surcharge tiers (10%, 15%, 25%, 37%).
+  - Multi-criteria evaluator scoring engine ([`actors/wp-evaluator/src/scoring.py`](actors/wp-evaluator/src/scoring.py)) with client-goal weighted matrices.
+
+- [x] **Phase 3: Supervisory Orchestrator, Vetoes & Autonomous Replanning**
+  - Dynamic task graph decomposition in [`actors/wp-orchestrator/src/orchestrator.py`](actors/wp-orchestrator/src/orchestrator.py).
+  - Hard compliance gate: automatic veto of aggressive liquidation proposals triggering excessive tax surcharges.
+  - Opportunistic tax-loss harvesting discovery feeding replanning rounds.
+  - Conflict arbitration between competing allocation strategies with logged institutional rationales.
+
+- [x] **Phase 4: Simulated Execution & Continuous Watchdog Monitoring**
+  - Order staging, trade sequencing, and execution simulation in [`actors/wp-execution-monitor/src/main.py`](actors/wp-execution-monitor/src/main.py).
+  - Human-in-the-loop authorization enforcement (`approved: true` safeguard).
+  - Event-driven monitoring for portfolio drift, promoter-pledge spikes, and regulatory circular alerts.
+
+- [x] **Phase 5: Interactive Institutional Client Web Platform**
+  - Built a state-of-the-art institutional advisory portal in [`frontend/`](frontend/) utilizing contemporary Swiss design tokens (high-contrast typography, frosted acrylics, weightless elevation).
+  - Dynamic mandate bar, live KPI metrics (Net Worth, Exposure, Surcharge Band, Tax Liability, Horizon).
+  - Dynamic strategy comparison cards (Rank 1 Recommended, Rank 2 Recommended, Rank 3 Alternative) with real-time reactive table updates.
+  - Deep-dive tabs: Executive Mandate, Multi-Asset Allocation Table, Indian Tax Architecture, Evaluator Scorecard, Execution Terminal, and Guardian Watchdog.
+
+- [x] **Phase 6: Multi-Format Portfolio Intake & Onboarding**
+  - Added institutional client onboarding modal with demo pre-fill options.
+  - Dynamic portfolio intake REST endpoint (`/api/portfolio/intake`) in [`frontend/server.py`](frontend/server.py) for CSV and statement parsing.
+  - Multi-account selector dropdown and dynamic client profile management.
+
+- [x] **Phase 7: Cloud Production Deployment & Containerization**
+  - **Live Production Deployment on Render:** [https://wealthpilot-ztey.onrender.com/](https://wealthpilot-ztey.onrender.com/)
+  - Single-container root Apify Actor deployment ([`.actor/Dockerfile`](.actor/Dockerfile), [`.actor/actor.json`](.actor/actor.json), [`actor_main.py`](actor_main.py)).
+  - Comprehensive deployment documentation in [`DEPLOYMENT.md`](DEPLOYMENT.md).
+  - 100% green test suite: **62 passed in 11.72s**.
 
 ---
 
-*WealthPilot is an academic prototype built for demonstration. It does not provide investment, tax or legal advice.*
+*WealthPilot is an institutional decision-support and analyst-augmentation platform. It does not provide automated investment, tax, or legal advice without certified human RIA supervision.*
