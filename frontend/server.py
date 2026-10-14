@@ -84,17 +84,17 @@ class WealthPilotAPIHandler(SimpleHTTPRequestHandler):
                 {
                     "id": "scenario_001",
                     "clientId": "CLIENT_001",
-                    "title": "Scenario 001: Concentrated Tech Promoter",
-                    "persona": "Founder / Promoter with 38% concentration in company equity",
+                    "title": "Rajesh Varma — Promoter & Family Office",
+                    "persona": "Founder & Promoter | 38% Concentrated IT Equity",
                     "netWorthINR": 120000000,
-                    "defaultGoal": "Reduce concentration in my own company stock tax-efficiently; need ₹2 Cr liquidity in 2 years.",
+                    "defaultGoal": "Tax-efficient concentration de-risking; ₹2 Cr liquidity required in 2 years for overseas expansion.",
                     "traceFile": "docs/trace_examples/scenario_001_trace.json"
                 },
                 {
                     "id": "scenario_002",
                     "clientId": "CLIENT_002",
-                    "title": "Scenario 002: Salaried Executive NBFC & LRS",
-                    "persona": "Senior Corporate Executive with 30% NBFC concentration and offshore LRS",
+                    "title": "Ananya Sen — Corporate Executive Wealth",
+                    "persona": "Senior Corporate Executive | 30% NBFC Concentration & Offshore LRS",
                     "netWorthINR": 80000000,
                     "defaultGoal": "De-risk NBFC exposure and diversify globally via RBI LRS window while maintaining wealth compounding.",
                     "traceFile": "docs/trace_examples/scenario_002_trace.json"

@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="WealthPilot — Autonomous Multi-Agent Wealth Advisory System for Indian HNIs built with Apify Actors and Neuro-Symbolic Tax Optimization.">
-  <title>WealthPilot — Autonomous Multi-Agent Advisory Cockpit</title>
+  <meta name="description" content="WealthPilot — Autonomous Private Wealth Advisory & Portfolio Rebalancing Platform for High-Net-Worth Individuals.">
+  <title>WealthPilot — Institutional Wealth Advisory Platform</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -13,286 +13,372 @@
   <header class="top-nav">
     <div class="brand">
       <div class="brand-icon">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
           <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
         </svg>
       </div>
       <div>
         <span class="brand-title">WealthPilot</span>
-        <span class="brand-badge">BTech Final Year Prototype</span>
+        <span class="brand-badge">Private Wealth</span>
       </div>
     </div>
 
-    <!-- Scenario Switcher Pills -->
-    <nav class="nav-center" aria-label="Scenario Selector">
-      <button class="scenario-pill active" id="btnScenario1" data-scenario="scenario_001">
+    <!-- Active Portfolio Selector -->
+    <nav class="nav-center" aria-label="Portfolio Selector">
+      <button class="scenario-pill active" id="btnPortfolio1" data-portfolio="scenario_001">
         <span class="status-dot"></span>
-        <span>Scenario 001: Promoter Tech (₹12 Cr)</span>
+        <span>Rajesh Varma (Promoter Family Office • ₹12 Cr)</span>
       </button>
-      <button class="scenario-pill" id="btnScenario2" data-scenario="scenario_002">
-        <span class="status-dot" style="background: var(--brand-cyan); box-shadow: 0 0 8px var(--brand-cyan);"></span>
-        <span>Scenario 002: Executive NBFC & LRS (₹8 Cr)</span>
+      <button class="scenario-pill" id="btnPortfolio2" data-portfolio="scenario_002">
+        <span class="status-dot" style="background: var(--brand-cyan);"></span>
+        <span>Ananya Sen (Corporate Executive • ₹8 Cr)</span>
       </button>
     </nav>
 
     <!-- Header Actions -->
     <div class="nav-actions">
-      <button class="btn btn-secondary" id="btnUploadFile" title="Load custom trace JSON file">
+      <button class="btn btn-secondary" id="btnCustomMandate" title="Configure custom investment objectives">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12"/>
+          <circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
         </svg>
-        <span>Upload Trace</span>
+        <span>Customize Mandate</span>
       </button>
-      <input type="file" id="fileInput" accept=".json" style="display: none;">
 
-      <button class="btn btn-secondary" id="btnExportReport" title="Export FinalReport JSON">
+      <button class="btn btn-secondary" id="btnExportBriefing" title="Export Investor Strategy Briefing">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/>
         </svg>
-        <span>Export JSON</span>
+        <span>Export Briefing</span>
       </button>
 
-      <button class="btn btn-primary" id="btnOpenRunModal">
+      <button class="btn btn-primary" id="btnRunAdvisory">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-          <polygon points="5 3 19 12 5 21 5 3"/>
+          <polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/>
         </svg>
-        <span>Run Live Advisory</span>
+        <span>Optimize Strategy</span>
       </button>
     </div>
   </header>
 
-  <!-- Client Persona Hero & KPI Banner -->
-  <section class="hero-banner" id="heroBanner">
+  <!-- Interactive Client Mandate & Intake Bar -->
+  <section class="mandate-bar" id="mandateBar">
+    <div class="mandate-inner">
+      <div class="mandate-field">
+        <span class="mandate-label">Active Wealth Account</span>
+        <div class="mandate-value" id="clientName">Rajesh Varma</div>
+        <div class="mandate-hint" id="clientPersona">Promoter-Entrepreneur | Tech Sector</div>
+      </div>
+
+      <div class="mandate-field">
+        <span class="mandate-label">Target Liquidity</span>
+        <div class="mandate-input-wrap">
+          <input type="text" class="mandate-input" id="inputTargetLiquidity" value="₹2,00,00,000">
+        </div>
+        <div class="mandate-hint">Capital redemption goal</div>
+      </div>
+
+      <div class="mandate-field">
+        <span class="mandate-label">Time Horizon</span>
+        <select class="mandate-select" id="selectHorizon">
+          <option value="1">1 Year (Immediate)</option>
+          <option value="2" selected>2 Years (Staged)</option>
+          <option value="5">5 Years (Medium Term)</option>
+          <option value="10">10 Years (Endowment)</option>
+        </select>
+        <div class="mandate-hint">Redemption window</div>
+      </div>
+
+      <div class="mandate-field">
+        <span class="mandate-label">Optimization Mandate</span>
+        <select class="mandate-select" id="selectMandate">
+          <option value="tax_optimized" selected>Tax-Optimized Concentration De-risking</option>
+          <option value="aggressive_growth">Aggressive Capital Compounding</option>
+          <option value="global_diversification">Global Diversification (RBI LRS)</option>
+          <option value="capital_preservation">Capital Preservation & Bond Ladder</option>
+        </select>
+        <div class="mandate-hint">Statutory & tax alignment</div>
+      </div>
+
+      <div class="mandate-action">
+        <button class="btn btn-primary" id="btnUpdateMandate">
+          <span>Apply & Rebalance</span>
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Executive Summary & Diagnostic Health Strip -->
+  <section class="hero-banner">
     <div class="hero-content">
-      <div class="client-identity">
-        <div class="kpi-label">Active Advisory Context</div>
-        <h2 id="clientName">Rajesh Singhania</h2>
-        <div class="client-persona" id="clientPersona">Founder & Promoter | 38% Equity in PROMOTER_CO</div>
+      <div class="kpi-card">
+        <div class="kpi-label">Total Managed Wealth</div>
+        <div class="kpi-value text-indigo" id="kpiNetWorth">₹12.00 Cr</div>
+        <div class="kpi-sub">5 Multi-Asset Accounts</div>
       </div>
 
       <div class="kpi-card">
-        <div class="kpi-label">Total Net Worth</div>
-        <div class="kpi-value text-emerald" id="kpiNetWorth">₹12.00 Cr</div>
-        <div class="kpi-sub">5 Ingested Data Sources</div>
-      </div>
-
-      <div class="kpi-card">
-        <div class="kpi-label">Top Concentration</div>
+        <div class="kpi-label">Concentration Exposure</div>
         <div class="kpi-value text-rose" id="kpiTopIssuer">38.0%</div>
-        <div class="kpi-sub" id="kpiTopIssuerName">PROMOTER_CO (Mid-Cap IT)</div>
+        <div class="kpi-sub" id="kpiTopIssuerName">PROMOTER_CO (Equity)</div>
       </div>
 
       <div class="kpi-card">
-        <div class="kpi-label">Liquidity Objective</div>
+        <div class="kpi-label">Target Liquidity Buffer</div>
         <div class="kpi-value text-amber" id="kpiLiquidityGoal">₹2.00 Cr</div>
-        <div class="kpi-sub" id="kpiHorizon">Target: 2 Years Horizon</div>
+        <div class="kpi-sub" id="kpiHorizon">2-Year Structured Window</div>
       </div>
 
       <div class="kpi-card">
-        <div class="kpi-label">System Mode & Status</div>
-        <div class="kpi-value text-indigo" id="kpiSystemMode">Dummy Sim</div>
+        <div class="kpi-label">Identified Tax Savings</div>
+        <div class="kpi-value text-emerald" id="kpiTaxSavings">₹12.50 L</div>
+        <div class="kpi-sub">Via Surcharge & Harvesting</div>
+      </div>
+
+      <div class="kpi-card">
+        <div class="kpi-label">Portfolio Health Index</div>
+        <div class="kpi-value text-emerald" id="kpiHealthScore">89 / 100</div>
         <div class="kpi-sub">
           <span class="status-dot"></span>
-          <span>7 Actors Verified</span>
+          <span>Guardian Active</span>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- Main Workspace: Dual-Pane Layout -->
+  <!-- Main Platform Content: Institutional Dashboard -->
   <main class="main-workspace">
 
-    <!-- LEFT PANEL: Multi-Agent Reasoning Graph & Trace Timeline -->
-    <section class="panel panel-left" aria-label="Cognitive Reasoning Graph">
-      
-      <!-- Multi-Agent Interactive Graph -->
-      <div class="dag-card-wrapper">
-        <div class="section-header">
-          <h3 class="section-title">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--brand-primary)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-              <circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/>
-              <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
-            </svg>
-            <span>Autonomous Multi-Agent DAG</span>
-          </h3>
-          <span class="timeline-pill success" id="badgeStepCount">7 Steps Executed</span>
-        </div>
-
-        <div class="agent-dag-container">
-          <div class="dag-flow" id="dagFlow">
-            
-            <div class="agent-node" data-actor="wp-client-context" title="Data Ingestion & Memory">
-              <div class="agent-avatar">📊</div>
-              <span class="agent-label">Client Context</span>
-            </div>
-
-            <div class="agent-node" data-actor="wp-research-policy" title="Policy & Regulatory Search">
-              <div class="agent-avatar">🔍</div>
-              <span class="agent-label">Research & Policy</span>
-            </div>
-
-            <div class="agent-node" data-actor="wp-strategy" title="Portfolio Generation">
-              <div class="agent-avatar">💡</div>
-              <span class="agent-label">Strategy</span>
-              <span class="event-badge badge-replan" id="badgeReplan" style="display: none;">Replan</span>
-            </div>
-
-            <div class="agent-node veto-node" data-actor="wp-tax-compliance" title="Deterministic Hard Gate">
-              <div class="agent-avatar">🛑</div>
-              <span class="agent-label">Tax & Compliance</span>
-              <span class="event-badge badge-veto" id="badgeVeto">Veto</span>
-            </div>
-
-            <div class="agent-node" data-actor="wp-evaluator" title="Multi-Criteria Critic">
-              <div class="agent-avatar">⚖️</div>
-              <span class="agent-label">Evaluator</span>
-            </div>
-
-            <div class="agent-node" data-actor="wp-orchestrator" title="Supervisory Engine & Arbitration">
-              <div class="agent-avatar">👑</div>
-              <span class="agent-label">Orchestrator</span>
-              <span class="event-badge badge-arbitration" id="badgeArbitration">Arbitrate</span>
-            </div>
-
-            <div class="agent-node" data-actor="wp-execution-monitor" title="Sentinel & Human Gate">
-              <div class="agent-avatar">🛡️</div>
-              <span class="agent-label">Execution Sentinel</span>
-            </div>
-
-          </div>
-        </div>
-      </div>
-
-      <!-- Execution Reasoning Timeline -->
-      <div class="timeline-card">
-        <div class="section-header">
-          <h3 class="section-title">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--brand-emerald)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-              <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
-            </svg>
-            <span>Step-by-Step Cognitive Trace</span>
-          </h3>
-          <span style="font-size: 12px; color: var(--text-muted);">Click step to inspect Plan-Act-Observe-Reflect</span>
-        </div>
-
-        <div class="timeline-list" id="timelineList">
-          <!-- Populated dynamically via app.js -->
-        </div>
-      </div>
-
-    </section>
-
-    <!-- RIGHT PANEL: Advisor Cockpit & Strategy Decision -->
-    <section class="panel panel-right" aria-label="Advisor Cockpit">
-      
-      <!-- Executive Summary Narrative -->
-      <div class="narrative-card">
-        <div class="section-header" style="margin-bottom: 10px;">
-          <h3 class="section-title text-indigo">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/>
-            </svg>
-            <span>Executive Advisor Narrative</span>
-          </h3>
-          <span class="timeline-pill success">Verified Compliant</span>
-        </div>
-        <p class="narrative-text" id="explanationText">
-          Loading WealthPilot advisory review...
-        </p>
-      </div>
-
-      <!-- Ranked Strategy Proposals -->
+    <!-- TOP SECTION: Strategic Alternatives (Ranked Strategy Cards) -->
+    <section class="strategy-section">
       <div class="section-header">
-        <h3 class="section-title">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--brand-amber)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
-          </svg>
-          <span>Candidate Strategic Portfolios</span>
-        </h3>
-        <span style="font-size: 12px; color: var(--text-muted);">Select option to compare metrics</span>
+        <div>
+          <h3 class="section-title">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--brand-primary)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+            </svg>
+            <span>Recommended Strategic Portfolios</span>
+          </h3>
+          <p class="section-desc">Multi-criteria institutional evaluation ranked by post-tax return, liquidity fulfillment, and risk mitigation.</p>
+        </div>
+        <span class="timeline-pill success" id="badgeStrategyCount">3 Compliant Strategies Available</span>
       </div>
 
       <div class="strategy-grid" id="strategyGrid">
         <!-- Populated dynamically via app.js -->
       </div>
+    </section>
 
-      <!-- Independent Scoring Criteria Breakdown -->
-      <div class="criteria-card">
-        <div class="section-header">
-          <h4 style="font-size: 14px; font-weight: 700;">Multi-Criteria Decision Analysis (wp-evaluator)</h4>
-          <span id="selectedStrategyTitle" style="font-size: 12px; font-weight: 600; color: var(--brand-indigo);">Strategy S2 (Rank #1)</span>
-        </div>
-        
-        <div class="criteria-list" id="criteriaList">
-          <!-- Populated dynamically via app.js -->
-        </div>
+    <!-- MIDDLE SECTION: Deep-Dive Analysis Tabs & Panels -->
+    <section class="analysis-section">
+      
+      <!-- Interactive Strategy Detail Tabs -->
+      <div class="tabs-nav">
+        <button class="tab-btn active" data-tab="tab-overview">Executive Summary</button>
+        <button class="tab-btn" data-tab="tab-allocation">Asset Rebalancing</button>
+        <button class="tab-btn" data-tab="tab-tax">Tax Architecture</button>
+        <button class="tab-btn" data-tab="tab-scorecard">Performance Scorecard</button>
+        <button class="tab-btn" data-tab="tab-execution">Execution Plan</button>
+        <button class="tab-btn" data-tab="tab-guardian">Portfolio Guardian</button>
       </div>
 
-      <!-- Tax Optimization & Allocation Visualizer -->
-      <div class="allocation-grid">
-        
-        <div class="metric-box">
-          <h4>Tax & Harvesting Impact</h4>
-          <div style="margin-bottom: 8px;">
-            <div class="kpi-label">Estimated Capital Gains Tax</div>
-            <div class="kpi-value text-rose" id="taxEstimatedAmount">₹40.71 L</div>
-          </div>
-          <div style="margin-bottom: 8px;">
-            <div class="kpi-label">Harvested Loss Offset</div>
-            <div class="kpi-value text-emerald" id="taxLossHarvested">₹12.50 L</div>
-          </div>
-          <p style="font-size: 11px; color: var(--text-muted);" id="taxNotes">
-            Section 112A equity LTCG surcharge capped at 15%. Remainder staged into FY27-28 to avoid top 25% surcharge bracket.
-          </p>
-        </div>
-
-        <div class="metric-box">
-          <h4>Target Asset Reallocation</h4>
-          <div id="targetAllocationList" style="display: flex; flex-direction: column; gap: 8px; margin-top: 8px;">
-            <!-- Populated dynamically via app.js -->
-          </div>
-        </div>
-
-      </div>
-
-      <!-- Execution Sentinel & Order Terminal -->
-      <div class="execution-card">
-        <div class="section-header">
-          <h3 class="section-title">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--brand-emerald)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/>
-            </svg>
-            <span>Execution Terminal & Sentinel Monitor</span>
-          </h3>
-          <button class="btn btn-emerald" id="btnToggleApproval">
-            <span>Approve & Simulate Trades</span>
-          </button>
-        </div>
-
-        <table class="trade-table">
-          <thead>
-            <tr>
-              <th>Order ID</th>
-              <th>Action</th>
-              <th>Asset</th>
-              <th>Amount (INR)</th>
-              <th>Status</th>
-            </tr>
-          </thead>
-          <tbody id="tradeTableBody">
-            <!-- Populated dynamically via app.js -->
-          </tbody>
-        </table>
-
-        <div style="margin-top: 14px; padding: 12px; background: rgba(244, 63, 94, 0.08); border: 1px solid rgba(244, 63, 94, 0.2); border-radius: 8px; display: flex; align-items: center; justify-content: space-between;">
-          <div style="display: flex; align-items: center; gap: 10px;">
-            <span style="font-size: 18px;">🛡️</span>
-            <div>
-              <div style="font-size: 12px; font-weight: 700; color: #ffffff;">Sentinel Active (EVT_001 Watchdog)</div>
-              <div style="font-size: 11px; color: var(--text-muted);">Monitors promoter pledge spikes and rating downgrades in real-time.</div>
+      <!-- Tab 1: Executive Summary & Rationale -->
+      <div class="tab-content active" id="tab-overview">
+        <div class="tab-grid-2col">
+          <div class="card">
+            <h4 class="card-title">Investment Advisory Rationale</h4>
+            <p class="narrative-text" id="explanationText">
+              Loading portfolio recommendations...
+            </p>
+            <div class="callout callout-info" style="margin-top: 16px;">
+              <strong>Advisory Highlight:</strong> Staging the ₹2.0 Cr redemption across two fiscal years avoids the peak 25% surcharge bracket under Indian Section 112A, preserving significant capital while meeting target liquidity.
             </div>
           </div>
-          <span class="timeline-pill success">Monitoring Live</span>
+
+          <div class="card">
+            <h4 class="card-title">Strategic Allocation Overview</h4>
+            <div id="overviewAllocationSummary" style="display: flex; flex-direction: column; gap: 12px; margin-top: 12px;">
+              <!-- Populated dynamically -->
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab 2: Asset Rebalancing Comparison -->
+      <div class="tab-content" id="tab-allocation">
+        <div class="card">
+          <div class="section-header" style="margin-bottom: 12px;">
+            <h4 class="card-title">Current Holdings vs. Target Rebalancing Allocation</h4>
+            <span style="font-size: 12px; color: var(--text-muted);">Total Portfolio: <strong id="lblAllocNetWorth">₹12.00 Cr</strong></span>
+          </div>
+
+          <table class="rebalance-table">
+            <thead>
+              <tr>
+                <th>Asset Class & Security</th>
+                <th>Current Allocation</th>
+                <th>Current Value</th>
+                <th>Target Allocation</th>
+                <th>Target Value</th>
+                <th>Net Action</th>
+              </tr>
+            </thead>
+            <tbody id="rebalanceTableBody">
+              <!-- Populated dynamically via app.js -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Tab 3: Tax Architecture & Loss Harvesting -->
+      <div class="tab-content" id="tab-tax">
+        <div class="tab-grid-2col">
+          <div class="card">
+            <h4 class="card-title">Capital Gains Tax & Surcharge Engineering</h4>
+            <div style="margin: 16px 0;">
+              <div class="kpi-label">Estimated Long-Term Capital Gains Tax</div>
+              <div class="kpi-value text-rose" id="taxEstimatedAmount">₹40.71 L</div>
+              <div class="kpi-sub">Capped at 15% Surcharge (Section 112A Equity LTCG)</div>
+            </div>
+
+            <div style="margin-bottom: 16px;">
+              <div class="kpi-label">Harvested Loss Offset Applied</div>
+              <div class="kpi-value text-emerald" id="taxLossHarvested">₹12.50 L</div>
+              <div class="kpi-sub">Realized from underperforming equity lots</div>
+            </div>
+
+            <p style="font-size: 13px; color: var(--text-secondary); line-height: 1.5;" id="taxNotes">
+              Remittances within compliant threshold. Staging liquidation avoids high surcharge cliff.
+            </p>
+          </div>
+
+          <div class="card">
+            <h4 class="card-title">Statutory & Regulatory Audit Guardrails</h4>
+            <div class="compliance-checklist">
+              <div class="check-item verified">
+                <span class="check-icon">✓</span>
+                <div>
+                  <div class="check-title">Income Tax Act Section 112A Compliance</div>
+                  <div class="check-sub">Equity LTCG surcharge capped at 15%; verified no spillover into 25% slab.</div>
+                </div>
+              </div>
+              <div class="check-item verified">
+                <span class="check-icon">✓</span>
+                <div>
+                  <div class="check-title">SEBI Takeover / Insider Concentration Review</div>
+                  <div class="check-sub">Tranche sizing verified within quarterly promoter trading limits.</div>
+                </div>
+              </div>
+              <div class="check-item verified">
+                <span class="check-icon">✓</span>
+                <div>
+                  <div class="check-title">Illiquid Asset Lock-in Preservation</div>
+                  <div class="check-sub">Category-II AIF lock-in period respected without forced distress liquidation.</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab 4: Performance & Risk Scorecard -->
+      <div class="tab-content" id="tab-scorecard">
+        <div class="card">
+          <div class="section-header">
+            <h4 class="card-title">Institutional Multi-Criteria Performance Scorecard</h4>
+            <span id="selectedStrategyTitle" style="font-size: 13px; font-weight: 700; color: var(--brand-primary);">Strategy S2 (Rank #1 • 89% Match)</span>
+          </div>
+          <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 16px;">
+            Weighted score combining net expected post-tax yield, target liquidity timing, single-stock de-risking, macro stress test resilience, and statutory compliance.
+          </p>
+
+          <div class="criteria-list" id="criteriaList">
+            <!-- Populated dynamically via app.js -->
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab 5: Execution Plan & Staged Orders -->
+      <div class="tab-content" id="tab-execution">
+        <div class="card">
+          <div class="section-header">
+            <div>
+              <h4 class="card-title">Staged Execution Schedule & Trade Orders</h4>
+              <p style="font-size: 12px; color: var(--text-muted);">Sequential order routing designed to minimize market impact and optimize settlement liquidity.</p>
+            </div>
+            <button class="btn btn-emerald" id="btnToggleApproval">
+              <span>Authorize & Execute Rebalance</span>
+            </button>
+          </div>
+
+          <table class="trade-table">
+            <thead>
+              <tr>
+                <th>Order Ref</th>
+                <th>Type</th>
+                <th>Asset / Security</th>
+                <th>Target Amount (INR)</th>
+                <th>Execution Tranche</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="tradeTableBody">
+              <!-- Populated dynamically via app.js -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Tab 6: Portfolio Guardian & Real-Time Watchdog -->
+      <div class="tab-content" id="tab-guardian">
+        <div class="tab-grid-2col">
+          <div class="card">
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px;">
+              <h4 class="card-title">Real-Time Risk Guardian (Sentinel Watchdog)</h4>
+              <span class="timeline-pill success">Monitoring Active</span>
+            </div>
+            <p style="font-size: 13px; color: var(--text-secondary); line-height: 1.5; margin-bottom: 16px;">
+              Continuously monitors market feeds, promoter pledge announcements, and credit rating changes to protect capital between rebalancing cycles.
+            </p>
+
+            <div class="guardian-alert-card">
+              <div style="display: flex; gap: 12px;">
+                <span style="font-size: 20px;">🛡️</span>
+                <div>
+                  <div style="font-size: 13px; font-weight: 700; color: var(--text-primary);">Event Trigger Guard: EVT_001 Watchdog</div>
+                  <div style="font-size: 12px; color: var(--text-muted); margin-top: 2px;">
+                    Trigger threshold set for promoter pledge increases > 5% or credit downgrades below AA+. Automatically alerts investment committee if breached.
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <h4 class="card-title">Portfolio Drift Tolerance</h4>
+            <div style="margin-top: 12px; display: flex; flex-direction: column; gap: 12px;">
+              <div>
+                <div style="display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 4px;">
+                  <span style="color: var(--text-secondary);">Equity Drift Band</span>
+                  <span style="font-weight: 600;">±3.5% (Within ±5.0% Limit)</span>
+                </div>
+                <div class="bar-bg"><div class="bar-fill" style="width: 70%;"></div></div>
+              </div>
+              <div>
+                <div style="display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 4px;">
+                  <span style="color: var(--text-secondary);">Fixed Income Reserve Band</span>
+                  <span style="font-weight: 600;">±1.2% (Within ±3.0% Limit)</span>
+                </div>
+                <div class="bar-bg"><div class="bar-fill" style="width: 40%; background: var(--brand-emerald);"></div></div>
+              </div>
+              <div>
+                <div style="display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 4px;">
+                  <span style="color: var(--text-secondary);">Offshore Currency Variance</span>
+                  <span style="font-weight: 600;">±0.8% (Target Met)</span>
+                </div>
+                <div class="bar-bg"><div class="bar-fill" style="width: 25%; background: var(--brand-cyan);"></div></div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -300,73 +386,46 @@
 
   </main>
 
-  <!-- Slide-Over Inspector Drawer -->
-  <aside class="drawer" id="inspectorDrawer" aria-label="Step Inspector Drawer">
-    <div class="drawer-header">
-      <div>
-        <div class="kpi-label" id="drawerActorTitle">wp-tax-compliance</div>
-        <h3 style="font-size: 17px; font-weight: 700;" id="drawerStepTitle">Step 4: Tax Hard Gate Veto</h3>
-      </div>
-      <button class="btn btn-secondary" id="btnCloseDrawer" style="padding: 6px 10px;">✕</button>
-    </div>
-
-    <div class="drawer-body">
-      <div style="margin-bottom: 18px;">
-        <h4 style="font-size: 12px; font-weight: 700; text-transform: uppercase; color: var(--text-muted); margin-bottom: 6px;">Thought Process</h4>
-        <p style="font-size: 13px; color: #ffffff; line-height: 1.5;" id="drawerThought">
-          Analyzing proposed transaction impacts...
-        </p>
-      </div>
-
-      <div style="margin-bottom: 18px;">
-        <h4 style="font-size: 12px; font-weight: 700; text-transform: uppercase; color: var(--text-muted); margin-bottom: 6px;">Tool Invoked</h4>
-        <span class="timeline-pill" style="font-family: var(--font-mono); font-size: 12px;" id="drawerToolName">calc_surcharge</span>
-      </div>
-
-      <div style="margin-bottom: 18px;">
-        <h4 style="font-size: 12px; font-weight: 700; text-transform: uppercase; color: var(--text-muted); margin-bottom: 6px;">Input Arguments</h4>
-        <pre class="code-block" id="drawerArgs">{}</pre>
-      </div>
-
-      <div style="margin-bottom: 18px;">
-        <h4 style="font-size: 12px; font-weight: 700; text-transform: uppercase; color: var(--text-muted); margin-bottom: 6px;">Result & Observation</h4>
-        <p style="font-size: 13px; color: var(--text-secondary); line-height: 1.5;" id="drawerResult">
-          Observation output...
-        </p>
-      </div>
-    </div>
-  </aside>
-
-  <!-- Live Run Modal -->
-  <div class="modal-overlay" id="runModalOverlay">
+  <!-- Interactive Custom Mandate Modal -->
+  <div class="modal-overlay" id="customMandateModal">
     <div class="modal-card">
       <div class="section-header">
-        <h3>Trigger Live Multi-Agent Execution</h3>
-        <button class="btn btn-secondary" id="btnCloseRunModal" style="padding: 4px 8px;">✕</button>
+        <h3 style="font-size: 18px; font-weight: 700;">Configure Wealth Advisory Mandate</h3>
+        <button class="btn btn-secondary" id="btnCloseModal" style="padding: 4px 8px;">✕</button>
       </div>
 
       <div class="input-group">
-        <label class="input-label" for="inputClientId">Client ID Profile</label>
-        <select class="text-input" id="inputClientId">
-          <option value="CLIENT_001">CLIENT_001 — Rajesh Singhania (Promoter Tech)</option>
-          <option value="CLIENT_002">CLIENT_002 — Ananya Sen (Salaried Executive)</option>
+        <label class="input-label" for="modalClientSelect">Client Portfolio Account</label>
+        <select class="text-input" id="modalClientSelect">
+          <option value="CLIENT_001">Rajesh Varma — Promoter & Family Office (₹12 Cr)</option>
+          <option value="CLIENT_002">Ananya Sen — Corporate Executive Wealth (₹8 Cr)</option>
         </select>
       </div>
 
       <div class="input-group">
-        <label class="input-label" for="inputGoal">Client Advisory Goal & Liquidity Need</label>
-        <textarea class="text-input" id="inputGoal" rows="3">Reduce concentration in my own company stock tax-efficiently; need ₹2 Cr liquidity in 2 years.</textarea>
+        <label class="input-label" for="modalLiquidityInput">Target Liquidity Amount (INR)</label>
+        <input type="text" class="text-input" id="modalLiquidityInput" value="20000000">
       </div>
 
       <div class="input-group">
-        <label class="input-label" for="inputMaxRounds">Maximum Autonomous Replan Rounds</label>
-        <input type="number" class="text-input" id="inputMaxRounds" value="3" min="1" max="5">
+        <label class="input-label" for="modalHorizonSelect">Liquidity Horizon</label>
+        <select class="text-input" id="modalHorizonSelect">
+          <option value="1">1 Year</option>
+          <option value="2" selected>2 Years</option>
+          <option value="5">5 Years</option>
+          <option value="7">7 Years</option>
+        </select>
       </div>
 
-      <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px;">
-        <button class="btn btn-secondary" id="btnCancelRun">Cancel</button>
-        <button class="btn btn-primary" id="btnSubmitRun">
-          <span>Launch Autonomous Pipeline</span>
+      <div class="input-group">
+        <label class="input-label" for="modalMandateGoal">Primary Strategic Objective</label>
+        <textarea class="text-input" id="modalMandateGoal" rows="3">Reduce concentration in own company stock tax-efficiently; need ₹2 Cr liquidity in 2 years for overseas business expansion.</textarea>
+      </div>
+
+      <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 24px;">
+        <button class="btn btn-secondary" id="btnCancelModal">Cancel</button>
+        <button class="btn btn-primary" id="btnSubmitModal">
+          <span>Run Wealth Optimization</span>
         </button>
       </div>
     </div>
