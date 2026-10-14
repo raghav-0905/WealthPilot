@@ -106,58 +106,60 @@
     <section class="panel panel-left" aria-label="Cognitive Reasoning Graph">
       
       <!-- Multi-Agent Interactive Graph -->
-      <div class="section-header">
-        <h3 class="section-title">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--brand-indigo)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/>
-            <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
-          </svg>
-          <span>Multi-Agent Execution DAG</span>
-        </h3>
-        <span class="timeline-pill success" id="badgeStepCount">7 Steps Executed</span>
-      </div>
+      <div class="dag-card-wrapper">
+        <div class="section-header">
+          <h3 class="section-title">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--brand-primary)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/>
+              <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
+            </svg>
+            <span>Autonomous Multi-Agent DAG</span>
+          </h3>
+          <span class="timeline-pill success" id="badgeStepCount">7 Steps Executed</span>
+        </div>
 
-      <div class="agent-dag-container">
-        <div class="dag-flow" id="dagFlow">
-          
-          <div class="agent-node" data-actor="wp-client-context" title="Data Ingestion & Memory">
-            <div class="agent-avatar">📊</div>
-            <span class="agent-label">Client Context</span>
+        <div class="agent-dag-container">
+          <div class="dag-flow" id="dagFlow">
+            
+            <div class="agent-node" data-actor="wp-client-context" title="Data Ingestion & Memory">
+              <div class="agent-avatar">📊</div>
+              <span class="agent-label">Client Context</span>
+            </div>
+
+            <div class="agent-node" data-actor="wp-research-policy" title="Policy & Regulatory Search">
+              <div class="agent-avatar">🔍</div>
+              <span class="agent-label">Research & Policy</span>
+            </div>
+
+            <div class="agent-node" data-actor="wp-strategy" title="Portfolio Generation">
+              <div class="agent-avatar">💡</div>
+              <span class="agent-label">Strategy</span>
+              <span class="event-badge badge-replan" id="badgeReplan" style="display: none;">Replan</span>
+            </div>
+
+            <div class="agent-node veto-node" data-actor="wp-tax-compliance" title="Deterministic Hard Gate">
+              <div class="agent-avatar">🛑</div>
+              <span class="agent-label">Tax & Compliance</span>
+              <span class="event-badge badge-veto" id="badgeVeto">Veto</span>
+            </div>
+
+            <div class="agent-node" data-actor="wp-evaluator" title="Multi-Criteria Critic">
+              <div class="agent-avatar">⚖️</div>
+              <span class="agent-label">Evaluator</span>
+            </div>
+
+            <div class="agent-node" data-actor="wp-orchestrator" title="Supervisory Engine & Arbitration">
+              <div class="agent-avatar">👑</div>
+              <span class="agent-label">Orchestrator</span>
+              <span class="event-badge badge-arbitration" id="badgeArbitration">Arbitrate</span>
+            </div>
+
+            <div class="agent-node" data-actor="wp-execution-monitor" title="Sentinel & Human Gate">
+              <div class="agent-avatar">🛡️</div>
+              <span class="agent-label">Execution Sentinel</span>
+            </div>
+
           </div>
-
-          <div class="agent-node" data-actor="wp-research-policy" title="Policy & Regulatory Search">
-            <div class="agent-avatar">🔍</div>
-            <span class="agent-label">Research & Policy</span>
-          </div>
-
-          <div class="agent-node" data-actor="wp-strategy" title="Portfolio Generation">
-            <div class="agent-avatar">💡</div>
-            <span class="agent-label">Strategy</span>
-            <span class="event-badge badge-replan" id="badgeReplan" style="display: none;">Replan</span>
-          </div>
-
-          <div class="agent-node veto-node" data-actor="wp-tax-compliance" title="Deterministic Hard Gate">
-            <div class="agent-avatar">🛑</div>
-            <span class="agent-label">Tax & Compliance</span>
-            <span class="event-badge badge-veto" id="badgeVeto">Veto</span>
-          </div>
-
-          <div class="agent-node" data-actor="wp-evaluator" title="Multi-Criteria Critic">
-            <div class="agent-avatar">⚖️</div>
-            <span class="agent-label">Evaluator</span>
-          </div>
-
-          <div class="agent-node" data-actor="wp-orchestrator" title="Supervisory Engine & Arbitration">
-            <div class="agent-avatar">👑</div>
-            <span class="agent-label">Orchestrator</span>
-            <span class="event-badge badge-arbitration" id="badgeArbitration">Arbitrate</span>
-          </div>
-
-          <div class="agent-node" data-actor="wp-execution-monitor" title="Sentinel & Human Gate">
-            <div class="agent-avatar">🛡️</div>
-            <span class="agent-label">Execution Sentinel</span>
-          </div>
-
         </div>
       </div>
 
@@ -370,6 +372,7 @@
     </div>
   </div>
 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
   <script src="app.js"></script>
 </body>
 </html>

@@ -193,6 +193,31 @@ function renderCompleteUI() {
 
   // 7. Render Simulated Trade Orders
   renderTradeOrders();
+
+  // 8. GSAP Spatial Staggered Entrances (antigravity-design-expert)
+  if (window.gsap) {
+    window.gsap.from(".agent-node", {
+      y: 16,
+      opacity: 0,
+      stagger: 0.05,
+      duration: 0.45,
+      ease: "power2.out"
+    });
+    window.gsap.from(".timeline-item", {
+      x: -14,
+      opacity: 0,
+      stagger: 0.04,
+      duration: 0.4,
+      ease: "power2.out"
+    });
+    window.gsap.from(".strategy-card", {
+      y: 12,
+      opacity: 0,
+      stagger: 0.06,
+      duration: 0.45,
+      ease: "back.out(1.2)"
+    });
+  }
 }
 
 function renderTimeline(steps) {
@@ -304,6 +329,16 @@ function selectStrategy(strategyId) {
       <span style="font-family: var(--font-mono); font-size: 12px; font-weight: 600; text-align: right;">${pct}%</span>
     `;
     els.criteriaList.appendChild(row);
+  }
+
+  // Animate Criteria Bars with GSAP
+  if (window.gsap) {
+    window.gsap.from(".bar-fill", {
+      width: 0,
+      stagger: 0.05,
+      duration: 0.5,
+      ease: "power2.out"
+    });
   }
 }
 
