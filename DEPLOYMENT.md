@@ -55,47 +55,34 @@ WealthPilot/
 
 This deploys the end-to-end multi-agent system onto Apify in a single container.
 
-#### Step 1: Add a Root Dockerfile for the Apify Actor
-Create or verify the `Dockerfile` at the root or within `actors/wp-orchestrator/`:
+#### Files Configured at Repo Root:
+1. **`.dockerignore`**: Excludes `.git`, `.venv`, `.env`, and `frontend/` from the build image.
+2. **`.actor/actor.json`**: Actor metadata and specification.
+3. **`.actor/input_schema.json`**: Apify input form specification (`clientId`, `goal`, `maxRevisionRounds`).
+4. **`.actor/Dockerfile`**: Builds from repo root using `apify/actor-python:3.12`.
+5. **`actor_main.py`**: Reads `await Actor.get_input()`, runs `load_orchestrator().run_orchestrator()`, validates against schema, and writes output via `await Actor.push_data(report)`.
 
-```dockerfile
-FROM apify/actor-python:3.12
+#### Method 1: Web Console (Zero-Install, Recommended)
+1. Go to [Apify Console](https://console.apify.com/) -> **Actors** -> **Create new**.
+2. Click **Link Git repository** and paste: `https://github.com/raghav-0905/WealthPilot`.
+3. Set **Source Directory**: Leave empty or `/` (Repo root).
+4. Click **Save & Build**. Apify builds the container directly from GitHub.
 
-# Copy repository dependencies
-COPY requirements.txt ./
-RUN pip install --no-cache-dir -r requirements.txt
-
-# Copy source code and actor modules
-COPY . ./
-
-# Set environment
-ENV WEALTHPILOT_MODE=live
-ENV PYTHONUNBUFFERED=1
-
-# Run entry point
-CMD ["python", "run.py", "--json-only"]
-```
-
-#### Step 2: Push to Apify via CLI
-Install the Apify CLI and deploy directly from your local terminal:
-
+#### Method 2: Apify CLI
 ```bash
-# 1. Install Apify CLI
 npm install -g apify-cli
-
-# 2. Log in with your Apify API Token (found in Apify Console -> Settings -> Integrations)
 apify login
-
-# 3. Deploy the actor to Apify
-apify push
+apify run          # Test locally in emulated Apify environment
+apify push         # Build and push to Apify Cloud
 ```
 
-#### Step 3: Trigger Live Execution via Apify REST API
-Once deployed, call the actor from any application using cURL or Python:
+#### Triggering via Apify API (Sync Endpoint)
+To execute the actor and retrieve the full dataset result in a single HTTP call:
 
 ```bash
 curl --request POST \
-  --url "https://api.apify.com/v2/acts/<YOUR_USERNAME>~wealthpilot-orchestrator/runs?token=<YOUR_APIFY_TOKEN>" \
+  --url "https://api.apify.com/v2/acts/<YOUR_USERNAME>~wealthpilot-orchestrator/run-sync-get-dataset-items" \
+  --header "Authorization: Bearer <YOUR_APIFY_TOKEN>" \
   --header "Content-Type: application/json" \
   --data '{
     "clientId": "CLIENT_001",
