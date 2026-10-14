@@ -363,44 +363,47 @@ Build `actors/wp-execution-monitor/src/main.py`:
 
 ## Phase 6 — UI & Frontend: Interactive Trace Viewer & Advisor Cockpit
 
-**Goal:** Build a state-of-the-art, visually stunning advisor-facing single-page application (SPA) in `docs/ui/` to demonstrate WealthPilot's multi-agent reasoning, replanning loops, and portfolio recommendations for academic presentations and client demos.
+**Goal:** Build a state-of-the-art, visually stunning advisor-facing single-page application (SPA) in a dedicated `frontend/` directory to demonstrate WealthPilot's multi-agent reasoning, replanning loops, and portfolio recommendations for academic presentations and client demos.
 
 ### Iteration 1 — Architecture & Design System
-- Modern, responsive SPA using Vanilla HTML5, CSS3, and JavaScript (ES6 Modules) located in `docs/ui/`.
-- Premium design system: Dark-mode-first aesthetic, harmonious HSL color palette, typography via Inter font, glassmorphism cards, and smooth micro-animations.
-- Independent execution: Runs locally with zero build dependencies via any static server or direct file opening.
+- Modern, responsive SPA using Vanilla HTML5, CSS3, and JavaScript located in `frontend/`.
+- Premium design system: Dark-mode-first aesthetic, harmonious HSL color palette, typography via Inter and Outfit fonts, glassmorphism cards, and smooth micro-animations.
+- Dual-mode architecture: Runs seamlessly offline (via direct `file://` opening with built-in verified snapshots) or connected live to the Python REST API server (`python frontend/server.py`).
 
 ### Iteration 2 — Multi-Agent Execution Graph & Flow Timeline
 - Interactive DAG / timeline visualizer representing agent execution steps:
-  - Actor nodes: Client Context, Research & Policy, Strategy, Tax Compliance, Evaluator, Execution Monitor.
+  - Actor nodes: Client Context, Research & Policy, Strategy, Tax Compliance, Evaluator, Orchestrator, Execution Monitor.
   - Dynamic visual markers:
     - 🔴 **Tax Vetoes**: Distinct alert badge showing reason, rejected candidate, and constraint feedback loop.
-    - 🟠 **Replanning Cycles**: Branching arrow illustrating iterative strategy regeneration.
+    - 🟠 **Replanning Cycles**: Branching marker illustrating iterative strategy regeneration.
     - 🔵 **Arbitration Decisions**: Highlighting conflict resolution (e.g. AIF lock-in vs. liquidity horizon).
     - 🟢 **Execution Sentinel**: Trigger events and human-in-the-loop approval gates.
 
 ### Iteration 3 — Step-by-Step Inspector (Plan → Act → Observe → Reflect)
-- Expandable drawer/modal inspecting any selected trace node:
+- Expandable slide-over drawer inspecting any selected trace node:
   - Agent Persona & Role Description.
   - Cognitive state breakdown: Thought process, Tool called, Inputs/Parameters, Output Summary.
-  - Raw JSON contract viewer with copy-to-clipboard functionality.
+  - Raw JSON contract viewer with code formatting.
 
 ### Iteration 4 — Advisor Cockpit & Final Report Dashboard
 - Executive Summary view displaying:
   - Client profile banner (Net worth, risk rating, stated liquidity goals).
-  - Ranked Strategy Proposals with per-criterion radar/bar breakdown (Post-tax return, Liquidity, Concentration reduction, Stress resilience, Compliance).
+  - Ranked Strategy Proposals with per-criterion bar breakdown (Post-tax return, Liquidity, Concentration reduction, Stress resilience, Compliance).
   - Tax & Harvesting Impact card (estimated capital gains tax, loss offsets, net savings).
   - Target Asset Allocation comparison (Current vs. Proposed).
   - Simulated Execution & Monitoring Terminal with live mock trade orders.
 
-### Iteration 5 — Scenario Switcher & Local Trace File Loader
+### Iteration 5 — Scenario Switcher, Local Trace Loader & Live Run Modal
 - Pre-loaded instant selector between **Scenario 001 (Concentrated Promoter)** and **Scenario 002 (Salaried Executive)**.
 - Drag-and-drop / file input loader to inspect any custom `TraceEntry` JSON file generated from live Apify runs.
+- Interactive **Run Live Advisory** modal triggering end-to-end multi-agent execution via `/api/run`.
 
 ### Phase 6 — Definition of Done
-- [ ] `docs/ui/index.html`, `docs/ui/style.css`, and `docs/ui/app.js` implemented
-- [ ] Scenario 001 and Scenario 002 traces render seamlessly in the browser
-- [ ] Step-by-step inspector displays thoughts, tools, and observations clearly
-- [ ] Key agentic events (veto, replan, arbitration) are visually highlighted
-- [ ] UI is fully responsive and interactive with zero compilation errors
+- [x] `frontend/index.html`, `frontend/style.css`, and `frontend/app.js` implemented
+- [x] `frontend/server.py` lightweight HTTP and REST API server implemented
+- [x] Scenario 001 and Scenario 002 traces render seamlessly in the browser
+- [x] Step-by-step inspector displays thoughts, tools, and observations clearly
+- [x] Key agentic events (veto, replan, arbitration) are visually highlighted
+- [x] Human-in-the-loop trade execution gate and Sentinel monitoring verified
+- [x] UI is fully responsive and interactive with zero compilation errors
 
