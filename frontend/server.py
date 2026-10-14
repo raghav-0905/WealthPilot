@@ -454,12 +454,12 @@ class WealthPilotAPIHandler(SimpleHTTPRequestHandler):
 
         self._send_json(404, {"error": "Endpoint not found"})
 
-def run_server(port: int = 8000):
-    server_address = ("127.0.0.1", port)
+def run_server(port: int = 8000, host: str = "0.0.0.0"):
+    server_address = (host, port)
     httpd = HTTPServer(server_address, WealthPilotAPIHandler)
     print("=" * 70)
     print("  WEALTHPILOT FRONTEND & ADVISOR COCKPIT SERVER")
-    print(f"  Running locally at: http://127.0.0.1:{port}")
+    print(f"  Listening on http://{host}:{port} (Cloud & Local Ready)")
     print("  Press Ctrl+C to stop the server")
     print("=" * 70)
     try:
@@ -469,5 +469,6 @@ def run_server(port: int = 8000):
         httpd.server_close()
 
 if __name__ == "__main__":
-    port = int(sys.argv[1]) if len(sys.argv) > 1 else 8000
+    env_port = os.environ.get("PORT")
+    port = int(env_port) if env_port else (int(sys.argv[1]) if len(sys.argv) > 1 else 8000)
     run_server(port)
