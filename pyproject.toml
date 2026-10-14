@@ -1,0 +1,15 @@
+[tool.pyrefly]
+preset = "default"
+python-interpreter-path = "C:/Users/sharm/AppData/Local/Programs/Python/Python312/python.exe"
+site-package-path = [
+    "C:/Users/sharm/AppData/Local/Programs/Python/Python312/Lib/site-packages"
+]
+search-path = [
+    ".",
+    "shared",
+    "schemas",
+    "actors"
+]
+
+[tool.pyrefly.errors]
+missing-import = false
