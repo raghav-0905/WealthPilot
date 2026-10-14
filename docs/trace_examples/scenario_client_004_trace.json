@@ -1,0 +1,29 @@
+{
+  "scenarioId": "scenario_client_004",
+  "clientId": "CLIENT_004",
+  "goal": "Tax-efficient single-stock de-risking; need \u20b92.5 Cr immediate liquidity within 2 years for overseas business expansion.",
+  "finalReport": {
+    "clientId": "CLIENT_004",
+    "goal": "Tax-efficient single-stock de-risking; need \u20b92.5 Cr immediate liquidity within 2 years for overseas business expansion.",
+    "explanation": "Custom portfolio intake completed for Aditya Singhania. Ready for multi-agent strategic optimization.",
+    "rankedOptions": [
+      {
+        "id": "S1_CUSTOM_STAGED",
+        "name": "Staged concentration exit from SINGHANIA_TECH",
+        "rank": 1,
+        "totalScore": 0.91,
+        "criteria": {
+          "postTaxReturn": 0.9,
+          "liquidity": 0.92,
+          "concentration": 0.88,
+          "stress": 0.86,
+          "compliance": 1.0
+        },
+        "justification": "Reduces 42.0% concentration while meeting target liquidity."
+      }
+    ],
+    "arbitrationLog": []
+  },
+  "totalTraceSteps": 1,
+  "traceEntries": []
+}

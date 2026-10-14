@@ -33,16 +33,22 @@ def read_broker_csv(path: str) -> List[Dict[str, Any]]:
     """Parses holdings and transactions from a broker CSV file."""
     # Normalize path if relative
     clean_path = path.replace("data/", "").replace("data\\", "")
-    data = dummy_read(clean_path)
-    if isinstance(data, list):
-        return data
+    try:
+        data = dummy_read(clean_path)
+        if isinstance(data, list):
+            return data
+    except Exception:
+        pass
     return []
 
 @tool(name="read_pms_statement", actor_name=ACTOR_NAME)
 def read_pms_statement(path: str) -> Dict[str, Any]:
     """Extracts holdings and fund details from a PMS/AIF statement text file."""
     clean_path = path.replace("data/", "").replace("data\\", "")
-    content = dummy_read(clean_path)
+    try:
+        content = dummy_read(clean_path)
+    except Exception:
+        content = ""
     
     extracted: Dict[str, Any] = {
         "pmsHoldings": [],
@@ -89,8 +95,11 @@ def read_pms_statement(path: str) -> Dict[str, Any]:
 def read_manual_entries(path: str) -> List[Dict[str, Any]]:
     """Loads manually entered unlisted equity, commercial real estate, or fixed deposits."""
     clean_path = path.replace("data/", "").replace("data\\", "")
-    raw = dummy_read(clean_path)
-    return raw.get("manualAssets", []) if isinstance(raw, dict) else []
+    try:
+        raw = dummy_read(clean_path)
+        return raw.get("manualAssets", []) if isinstance(raw, dict) else []
+    except Exception:
+        return []
 
 @tool(name="convert_currency", actor_name=ACTOR_NAME)
 def convert_currency(amount: float, from_curr: str, to_curr: str = "INR") -> float:
@@ -230,6 +239,15 @@ def run_client_context(actor_input: Dict[str, Any]) -> Dict[str, Any]:
             "issuer": ident,
             "valueINR": val
         })
+
+    # Fallback to direct client persona holdings if no separate portfolio files exist
+    if not reconciled_holdings and client_persona.get("holdings"):
+        for h in client_persona.get("holdings", []):
+            reconciled_holdings.append({
+                "assetClass": h.get("assetClass", "listed_equity"),
+                "issuer": h.get("issuer", "ASSET"),
+                "valueINR": float(h.get("valueINR", 0.0))
+            })
 
     # Total Net Worth
     total_net_worth = sum(h["valueINR"] for h in reconciled_holdings)

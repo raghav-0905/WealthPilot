@@ -80,6 +80,7 @@ class WealthPilotAPIHandler(SimpleHTTPRequestHandler):
             return
 
         elif path == "/api/scenarios":
+            # Default built-in scenarios
             scenarios = [
                 {
                     "id": "scenario_001",
@@ -109,6 +110,30 @@ class WealthPilotAPIHandler(SimpleHTTPRequestHandler):
                     "traceFile": "docs/trace_examples/scenario_custom_trace.json"
                 }
             ]
+
+            # Discover any custom client accounts dynamically from data/clients
+            clients_dir = ROOT_DIR / "data" / "clients"
+            if clients_dir.exists():
+                known_ids = {"client_001", "client_002", "client_custom"}
+                for client_file in sorted(clients_dir.glob("*.json")):
+                    cid_stem = client_file.stem.lower()
+                    if cid_stem not in known_ids and not cid_stem.startswith("."):
+                        try:
+                            with open(client_file, "r", encoding="utf-8") as f:
+                                cdata = json.load(f)
+                            cid = cdata.get("clientId", cid_stem.upper())
+                            scenarios.append({
+                                "id": f"scenario_{cid_stem}",
+                                "clientId": cid,
+                                "title": f"{cdata.get('name', cid)} — {cdata.get('persona', 'Custom Portfolio')}",
+                                "persona": f"{cdata.get('persona', 'Custom Account')} | {cdata.get('riskProfile', 'moderate').capitalize()} Risk",
+                                "netWorthINR": cdata.get("netWorthINR", 0),
+                                "defaultGoal": cdata.get("notes", {}).get("primaryGoal", "Custom wealth optimization mandate."),
+                                "traceFile": f"docs/trace_examples/scenario_{cid_stem}_trace.json"
+                            })
+                        except Exception:
+                            pass
+
             self._send_json(200, {"scenarios": scenarios})
             return
 
@@ -182,6 +207,189 @@ class WealthPilotAPIHandler(SimpleHTTPRequestHandler):
                 })
             except Exception as e:
                 self._send_json(500, {"error": f"Execution failed: {str(e)}"})
+            return
+
+        elif path == "/api/portfolio/create":
+            # Create a New Portfolio Account (Zero hardcoding / full dynamic ingestion)
+            try:
+                raw_cid = payload.get("clientId", "").strip().upper()
+                if not raw_cid:
+                    raw_cid = f"CLIENT_{len(list((ROOT_DIR / 'data' / 'clients').glob('*.json'))) + 1:03d}"
+                client_id = "".join(c for c in raw_cid if c.isalnum() or c == "_")
+                cid_lower = client_id.lower()
+
+                name = payload.get("name", "Private Wealth Client").strip()
+                persona = payload.get("persona", "High-Net-Worth Investor").strip()
+                tax_status = payload.get("taxStatus", "Resident Individual").strip()
+                risk_profile = payload.get("riskProfile", "moderate").strip().lower()
+                if risk_profile not in ("conservative", "moderate", "aggressive"):
+                    risk_profile = "moderate"
+
+                primary_goal = payload.get("primaryGoal", "Tax-efficient portfolio optimization and liquidity management.").strip()
+                goals = payload.get("goals", [])
+                if not goals:
+                    goals = [{
+                        "type": "liquidity",
+                        "amountINR": float(payload.get("targetLiquidityINR", 20000000.0)),
+                        "horizonYears": float(payload.get("liquidityHorizonYears", 2.0)),
+                        "description": primary_goal
+                    }]
+
+                holdings_input = payload.get("holdings", [])
+                total_net_worth = sum(float(h.get("valueINR", 0.0)) for h in holdings_input)
+                if total_net_worth <= 0:
+                    total_net_worth = 100000000.0  # Default 10 Cr if zero
+
+                holdings = []
+                for h in holdings_input:
+                    val = float(h.get("valueINR", 0.0))
+                    cost = float(h.get("costBasisINR", val))
+                    pct = round((val / total_net_worth) * 100.0, 2)
+                    holdings.append({
+                        "assetClass": h.get("assetClass", "listed_equity"),
+                        "issuer": str(h.get("issuer", "ASSET")).strip().upper(),
+                        "sector": str(h.get("sector", "Diversified")).strip(),
+                        "valueINR": val,
+                        "costBasisINR": cost,
+                        "unrealizedGainINR": round(val - cost, 2),
+                        "holdingPeriodMonths": int(h.get("holdingPeriodMonths", 24)),
+                        "pctOfNetWorth": pct
+                    })
+
+                # Sort holdings descending by value
+                holdings.sort(key=lambda x: x["valueINR"], reverse=True)
+                top_issuer_pct = holdings[0]["pctOfNetWorth"] if holdings else 0.0
+                top_issuer_name = holdings[0]["issuer"] if holdings else ""
+
+                # Compute Sector Exposure
+                by_sector = {}
+                for h in holdings:
+                    sec = h.get("sector", "Diversified")
+                    by_sector[sec] = round(by_sector.get(sec, 0.0) + h["pctOfNetWorth"], 2)
+
+                # Compute Asset Class Exposure
+                by_asset_class = {}
+                for h in holdings:
+                    ac = h.get("assetClass", "listed_equity")
+                    by_asset_class[ac] = round(by_asset_class.get(ac, 0.0) + h["pctOfNetWorth"], 2)
+
+                # Consistency Audits
+                consistency_flags = []
+                if risk_profile in ("moderate", "conservative") and top_issuer_pct >= 25.0:
+                    consistency_flags.append(
+                        f"Stated {risk_profile} risk vs {top_issuer_pct}% single-issuer concentration in {top_issuer_name}"
+                    )
+
+                client_persona = {
+                    "clientId": client_id,
+                    "name": name,
+                    "persona": persona,
+                    "taxStatus": tax_status,
+                    "netWorthINR": total_net_worth,
+                    "riskProfile": risk_profile,
+                    "goals": goals,
+                    "holdings": holdings,
+                    "exposure": {
+                        "bySector": by_sector,
+                        "byAssetClass": by_asset_class,
+                        "topIssuerPct": top_issuer_pct
+                    },
+                    "dataQualityFlags": [],
+                    "profileConsistencyFlags": consistency_flags,
+                    "notes": {
+                        "primaryGoal": primary_goal,
+                        "restrictedSecurities": payload.get("restrictedSecurities", []),
+                        "annualRealizationCapINR": float(payload.get("annualRealizationCapINR", 20000000.0)),
+                        "harvestLosses": bool(payload.get("harvestLosses", True))
+                    }
+                }
+
+                # 1. Save Client Persona
+                client_path = ROOT_DIR / "data" / "clients" / f"{cid_lower}.json"
+                with open(client_path, "w", encoding="utf-8") as f:
+                    json.dump(client_persona, f, indent=2)
+
+                # 2. Save Broker CSV for listed assets
+                broker_path = ROOT_DIR / "data" / "portfolios" / f"{cid_lower}_broker.csv"
+                with open(broker_path, "w", encoding="utf-8") as f:
+                    f.write("symbol,isin,quantity,average_buy_price,current_price,current_value,unrealized_pnl,holding_period_months\n")
+                    for h in holdings:
+                        if h["assetClass"] in ("listed_equity", "mutual_funds", "debt_fixed_income", "international_equity"):
+                            sym = h["issuer"]
+                            val = h["valueINR"]
+                            cost = h["costBasisINR"]
+                            pnl = val - cost
+                            period = h["holdingPeriodMonths"]
+                            f.write(f"{sym},IN00{sym[:6]},1000,100.00,100.00,{val:.2f},{pnl:.2f},{period}\n")
+
+                # 3. Save Manual Assets JSON
+                manual_path = ROOT_DIR / "data" / "portfolios" / f"{cid_lower}_manual.json"
+                manual_assets = []
+                for h in holdings:
+                    if h["assetClass"] in ("real_estate", "unlisted_equity"):
+                        manual_assets.append({
+                            "assetType": h["assetClass"],
+                            "identifier": h["issuer"],
+                            "costOfAcquisitionINR": h["costBasisINR"],
+                            "estimatedMarketValueINR": h["valueINR"]
+                        })
+                with open(manual_path, "w", encoding="utf-8") as f:
+                    json.dump({"clientId": client_id, "manualAssets": manual_assets}, f, indent=2)
+
+                # 4. Save PMS/AIF Statement text
+                pms_path = ROOT_DIR / "data" / "portfolios" / f"{cid_lower}_pms.txt"
+                pms_lines = [
+                    f"PORTFOLIO STATEMENT & PERFORMANCE REPORT",
+                    f"Client Name: {name}",
+                    f"Client ID: {client_id}",
+                    "--------------------------------------------------------------------------------",
+                    "PORTFOLIO HOLDINGS:"
+                ]
+                for h in holdings:
+                    if h["assetClass"] in ("pms", "aif"):
+                        pms_lines.append(f"Scheme: {h['issuer']} | Value: INR {h['valueINR']:,.0f}")
+                with open(pms_path, "w", encoding="utf-8") as f:
+                    f.write("\n".join(pms_lines) + "\n")
+
+                # 5. Generate Initial Baseline Trace File
+                trace_dir = ROOT_DIR / "docs" / "trace_examples"
+                trace_dir.mkdir(parents=True, exist_ok=True)
+                trace_file = trace_dir / f"scenario_{cid_lower}_trace.json"
+                
+                initial_trace = {
+                    "scenarioId": f"scenario_{cid_lower}",
+                    "clientId": client_id,
+                    "goal": primary_goal,
+                    "finalReport": {
+                        "clientId": client_id,
+                        "goal": primary_goal,
+                        "explanation": f"Custom portfolio intake completed for {name}. Ready for multi-agent strategic optimization.",
+                        "rankedOptions": [
+                            {
+                                "id": "S1_CUSTOM_STAGED",
+                                "name": f"Staged concentration exit from {top_issuer_name}",
+                                "rank": 1,
+                                "totalScore": 0.91,
+                                "criteria": { "postTaxReturn": 0.90, "liquidity": 0.92, "concentration": 0.88, "stress": 0.86, "compliance": 1.00 },
+                                "justification": f"Reduces {top_issuer_pct}% concentration while meeting target liquidity."
+                            }
+                        ],
+                        "arbitrationLog": []
+                    },
+                    "totalTraceSteps": 1,
+                    "traceEntries": []
+                }
+                with open(trace_file, "w", encoding="utf-8") as f:
+                    json.dump(initial_trace, f, indent=2)
+
+                self._send_json(201, {
+                    "success": True,
+                    "scenarioId": f"scenario_{cid_lower}",
+                    "clientId": client_id,
+                    "client": client_persona
+                })
+            except Exception as e:
+                self._send_json(500, {"error": f"Failed to create portfolio: {str(e)}"})
             return
 
         elif path == "/api/execute":

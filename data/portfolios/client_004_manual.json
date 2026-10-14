@@ -1,0 +1,11 @@
+{
+  "clientId": "CLIENT_004",
+  "manualAssets": [
+    {
+      "assetType": "real_estate",
+      "identifier": "MUMBAI_BANDRA_COMMERCIAL",
+      "costOfAcquisitionINR": 7500000.0,
+      "estimatedMarketValueINR": 10000000.0
+    }
+  ]
+}

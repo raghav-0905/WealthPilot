@@ -179,6 +179,14 @@ def run_strategy(actor_input: Dict[str, Any]) -> List[Dict[str, Any]]:
     catalog = get_product_catalog()
     candidates: List[Dict[str, Any]] = []
 
+    top_holding = holdings[0] if holdings else {}
+    primary_asset = top_holding.get("issuer", "PROMOTER_CO") if client_id != "CLIENT_001" and holdings else "PROMOTER_CO"
+    loss_asset = "CLEANTECH_SOL"
+    for h in holdings:
+        if h.get("unrealizedGainINR", 0) < 0 or (h.get("costBasisINR", 0) > h.get("valueINR", 0)):
+            loss_asset = h.get("issuer", "CLEANTECH_SOL")
+            break
+
     if client_id == "CLIENT_002":
         s1 = {
             "id": "S1_NBFC_ROTATION",
@@ -220,10 +228,10 @@ def run_strategy(actor_input: Dict[str, Any]) -> List[Dict[str, Any]]:
     elif has_constraints:
         s2_revised = {
             "id": "S2",
-            "name": "Staged exit over two financial years with tax-loss harvesting",
+            "name": f"Staged exit over two financial years with tax-loss harvesting in {loss_asset}",
             "actions": [
-                {"type": "SELL", "asset": "PROMOTER_CO", "amountINR": 20000000.0, "when": "FY26-27"},
-                {"type": "SELL", "asset": "CLEANTECH_SOL", "amountINR": 2000000.0, "when": "FY26-27"},
+                {"type": "SELL", "asset": primary_asset, "amountINR": 20000000.0, "when": "FY26-27"},
+                {"type": "SELL", "asset": loss_asset, "amountINR": 2000000.0, "when": "FY26-27"},
                 {"type": "BUY", "asset": "GOI_BONDS_7_18", "amountINR": 10000000.0, "when": "FY26-27"},
                 {"type": "BUY", "asset": "HDFC_LARGE_CAP_FUND", "amountINR": 12000000.0, "when": "FY26-27"}
             ],
@@ -240,14 +248,14 @@ def run_strategy(actor_input: Dict[str, Any]) -> List[Dict[str, Any]]:
                 "topIssuerPctAfter": 21.33,
                 "stressLoss": -0.102
             },
-            "rationale": "Respects the ₹2.0 Cr single-year sale limit, harvests ₹12.5L loss in CLEANTECH_SOL to offset LTCG, and provides immediate ₹2 Cr liquidity for client's 2-year goal."
+            "rationale": f"Respects annual realization limits, harvests loss in {loss_asset} to offset LTCG, and provides required liquidity for client's multi-year goal."
         }
 
         s4_revised = {
             "id": "S4",
             "name": "Alternative rotation into liquid PMS and debt (no lock-in)",
             "actions": [
-                {"type": "SELL", "asset": "PROMOTER_CO", "amountINR": 20000000.0, "when": "FY26-27"},
+                {"type": "SELL", "asset": primary_asset, "amountINR": 20000000.0, "when": "FY26-27"},
                 {"type": "BUY", "asset": "ALPHA_OPPORTUNITIES_PMS", "amountINR": 10000000.0, "when": "FY26-27"},
                 {"type": "BUY", "asset": "GOI_BONDS_7_18", "amountINR": 10000000.0, "when": "FY26-27"}
             ],
@@ -271,7 +279,7 @@ def run_strategy(actor_input: Dict[str, Any]) -> List[Dict[str, Any]]:
             "id": "S3",
             "name": "Defensive dividend & REIT rotation within annual threshold",
             "actions": [
-                {"type": "SELL", "asset": "PROMOTER_CO", "amountINR": 15000000.0, "when": "FY26-27"},
+                {"type": "SELL", "asset": primary_asset, "amountINR": 15000000.0, "when": "FY26-27"},
                 {"type": "BUY", "asset": "EMBASSY_REIT", "amountINR": 8000000.0, "when": "FY26-27"},
                 {"type": "BUY", "asset": "GOI_BONDS_7_18", "amountINR": 7000000.0, "when": "FY26-27"}
             ],
@@ -298,7 +306,7 @@ def run_strategy(actor_input: Dict[str, Any]) -> List[Dict[str, Any]]:
             "id": "S1",
             "name": "Aggressive immediate sell-down (60% exit in FY26-27)",
             "actions": [
-                {"type": "SELL", "asset": "PROMOTER_CO", "amountINR": 27360000.0, "when": "FY26-27"},
+                {"type": "SELL", "asset": primary_asset, "amountINR": 27360000.0, "when": "FY26-27"},
                 {"type": "BUY", "asset": "HDFC_LARGE_CAP_FUND", "amountINR": 17360000.0, "when": "FY26-27"},
                 {"type": "BUY", "asset": "GOI_BONDS_7_18", "amountINR": 10000000.0, "when": "FY26-27"}
             ],
@@ -322,8 +330,8 @@ def run_strategy(actor_input: Dict[str, Any]) -> List[Dict[str, Any]]:
             "id": "S2",
             "name": "Staged exit over two financial years",
             "actions": [
-                {"type": "SELL", "asset": "PROMOTER_CO", "amountINR": 20000000.0, "when": "FY26-27"},
-                {"type": "SELL", "asset": "PROMOTER_CO", "amountINR": 20000000.0, "when": "FY27-28"},
+                {"type": "SELL", "asset": primary_asset, "amountINR": 20000000.0, "when": "FY26-27"},
+                {"type": "SELL", "asset": primary_asset, "amountINR": 20000000.0, "when": "FY27-28"},
                 {"type": "BUY", "asset": "GOI_BONDS_7_18", "amountINR": 10000000.0, "when": "FY26-27"},
                 {"type": "BUY", "asset": "HDFC_LARGE_CAP_FUND", "amountINR": 10000000.0, "when": "FY26-27"}
             ],
@@ -347,7 +355,7 @@ def run_strategy(actor_input: Dict[str, Any]) -> List[Dict[str, Any]]:
             "id": "S3",
             "name": "Defensive partial exit with REIT & sovereign debt allocation",
             "actions": [
-                {"type": "SELL", "asset": "PROMOTER_CO", "amountINR": 15000000.0, "when": "FY26-27"},
+                {"type": "SELL", "asset": primary_asset, "amountINR": 15000000.0, "when": "FY26-27"},
                 {"type": "BUY", "asset": "EMBASSY_REIT", "amountINR": 7500000.0, "when": "FY26-27"},
                 {"type": "BUY", "asset": "GOI_BONDS_7_18", "amountINR": 7500000.0, "when": "FY26-27"}
             ],
@@ -372,7 +380,7 @@ def run_strategy(actor_input: Dict[str, Any]) -> List[Dict[str, Any]]:
             "id": "S4",
             "name": "Multi-asset rotation with Cat-II AIF and PMS",
             "actions": [
-                {"type": "SELL", "asset": "PROMOTER_CO", "amountINR": 20000000.0, "when": "FY26-27"},
+                {"type": "SELL", "asset": primary_asset, "amountINR": 20000000.0, "when": "FY26-27"},
                 {"type": "BUY", "asset": "STELLAR_GROWTH_AIF_CAT2", "amountINR": 10000000.0, "when": "FY26-27"},
                 {"type": "BUY", "asset": "ALPHA_OPPORTUNITIES_PMS", "amountINR": 10000000.0, "when": "FY26-27"}
             ],

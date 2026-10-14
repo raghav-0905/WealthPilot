@@ -1,0 +1,114 @@
+{
+  "clientId": "CLIENT_004",
+  "name": "Aditya Singhania",
+  "persona": "Angel Investor & DeepTech Founder",
+  "taxStatus": "Resident Individual",
+  "netWorthINR": 100000000.0,
+  "riskProfile": "moderate",
+  "goals": [
+    {
+      "type": "liquidity",
+      "amountINR": 25000000,
+      "horizonYears": 2,
+      "description": "Tax-efficient single-stock de-risking; need \u20b92.5 Cr immediate liquidity within 2 years for overseas business expansion."
+    },
+    {
+      "type": "wealth_preservation",
+      "amountINR": 40000000,
+      "horizonYears": 8,
+      "description": "Long-term family trust endowment: \u20b94.0 Cr over 8 years"
+    }
+  ],
+  "holdings": [
+    {
+      "assetClass": "listed_equity",
+      "issuer": "SINGHANIA_TECH",
+      "sector": "Technology",
+      "valueINR": 42000000.0,
+      "costBasisINR": 12000000.0,
+      "unrealizedGainINR": 30000000.0,
+      "holdingPeriodMonths": 36,
+      "pctOfNetWorth": 42.0
+    },
+    {
+      "assetClass": "pms",
+      "issuer": "MARCELLUS_CONSISTENT_COMPOUNDERS",
+      "sector": "Financials",
+      "valueINR": 16000000.0,
+      "costBasisINR": 13000000.0,
+      "unrealizedGainINR": 3000000.0,
+      "holdingPeriodMonths": 30,
+      "pctOfNetWorth": 16.0
+    },
+    {
+      "assetClass": "mutual_funds",
+      "issuer": "ICICI_PRU_BLUECHIP_FUND",
+      "sector": "Diversified_Equity",
+      "valueINR": 15000000.0,
+      "costBasisINR": 11000000.0,
+      "unrealizedGainINR": 4000000.0,
+      "holdingPeriodMonths": 24,
+      "pctOfNetWorth": 15.0
+    },
+    {
+      "assetClass": "debt_fixed_income",
+      "issuer": "GOI_7_26_SOVEREIGN_BOND",
+      "sector": "Sovereign_Debt",
+      "valueINR": 14000000.0,
+      "costBasisINR": 14000000.0,
+      "unrealizedGainINR": 0.0,
+      "holdingPeriodMonths": 12,
+      "pctOfNetWorth": 14.0
+    },
+    {
+      "assetClass": "real_estate",
+      "issuer": "MUMBAI_BANDRA_COMMERCIAL",
+      "sector": "Real_Estate",
+      "valueINR": 10000000.0,
+      "costBasisINR": 7500000.0,
+      "unrealizedGainINR": 2500000.0,
+      "holdingPeriodMonths": 48,
+      "pctOfNetWorth": 10.0
+    },
+    {
+      "assetClass": "listed_equity",
+      "issuer": "GREEN_ENERGY_LTD",
+      "sector": "CleanTech",
+      "valueINR": 3000000.0,
+      "costBasisINR": 4500000.0,
+      "unrealizedGainINR": -1500000.0,
+      "holdingPeriodMonths": 18,
+      "pctOfNetWorth": 3.0
+    }
+  ],
+  "exposure": {
+    "bySector": {
+      "Technology": 42.0,
+      "Financials": 16.0,
+      "Diversified_Equity": 15.0,
+      "Sovereign_Debt": 14.0,
+      "Real_Estate": 10.0,
+      "CleanTech": 3.0
+    },
+    "byAssetClass": {
+      "listed_equity": 45.0,
+      "pms": 16.0,
+      "mutual_funds": 15.0,
+      "debt_fixed_income": 14.0,
+      "real_estate": 10.0
+    },
+    "topIssuerPct": 42.0
+  },
+  "dataQualityFlags": [],
+  "profileConsistencyFlags": [
+    "Stated moderate risk vs 42.0% single-issuer concentration in SINGHANIA_TECH"
+  ],
+  "notes": {
+    "primaryGoal": "Tax-efficient single-stock de-risking; need \u20b92.5 Cr immediate liquidity within 2 years for overseas business expansion.",
+    "restrictedSecurities": [
+      "SINGHANIA_TECH"
+    ],
+    "annualRealizationCapINR": 20000000.0,
+    "harvestLosses": true
+  }
+}
