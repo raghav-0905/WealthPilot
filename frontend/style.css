@@ -907,6 +907,57 @@ body::before {
   box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
 }
 
+.modal-card-lg {
+  max-width: 96vw;
+  width: 1040px;
+  background: #ffffff;
+  box-shadow: 0 25px 50px -12px rgba(15, 23, 42, 0.25), 0 0 0 1px rgba(15, 23, 42, 0.08);
+  border-radius: 20px;
+  animation: modalFadeIn 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes modalFadeIn {
+  from { opacity: 0; transform: scale(0.96) translateY(8px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+.table-input {
+  width: 100%;
+  padding: 6px 8px;
+  border: 1px solid var(--border-light);
+  border-radius: 6px;
+  font-size: 12px;
+  font-family: var(--font-body);
+  background: #ffffff;
+  color: var(--text-primary);
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+.table-input:focus {
+  border-color: var(--brand-primary);
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.12);
+}
+
+.btn-delete-row {
+  background: transparent;
+  border: none;
+  color: #ef4444;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 4px;
+  font-weight: 700;
+  font-size: 14px;
+  transition: all 0.15s;
+  display: grid;
+  place-items: center;
+}
+
+.btn-delete-row:hover {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
 /* ==============================================================================
    RESPONSIVE DESIGN
    ============================================================================== */

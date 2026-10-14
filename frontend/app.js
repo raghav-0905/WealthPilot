@@ -19,9 +19,11 @@ const state = {
 // DOM References
 const els = {
   // Navigation & Switchers
+  navScenarioContainer: document.getElementById("navScenarioContainer"),
   btnPortfolio1: document.getElementById("btnPortfolio1"),
   btnPortfolio2: document.getElementById("btnPortfolio2"),
   btnPortfolio3: document.getElementById("btnPortfolio3"),
+  btnOpenNewPortfolio: document.getElementById("btnOpenNewPortfolio"),
   btnCustomMandate: document.getElementById("btnCustomMandate"),
   btnExportBriefing: document.getElementById("btnExportBriefing"),
   btnRunAdvisory: document.getElementById("btnRunAdvisory"),
@@ -72,7 +74,7 @@ const els = {
   btnToggleApproval: document.getElementById("btnToggleApproval"),
   tradeTableBody: document.getElementById("tradeTableBody"),
 
-  // Modal
+  // Custom Mandate Modal
   customMandateModal: document.getElementById("customMandateModal"),
   btnCloseModal: document.getElementById("btnCloseModal"),
   btnCancelModal: document.getElementById("btnCancelModal"),
@@ -80,8 +82,45 @@ const els = {
   modalClientSelect: document.getElementById("modalClientSelect"),
   modalLiquidityInput: document.getElementById("modalLiquidityInput"),
   modalHorizonSelect: document.getElementById("modalHorizonSelect"),
-  modalMandateGoal: document.getElementById("modalMandateGoal")
+  modalMandateGoal: document.getElementById("modalMandateGoal"),
+
+  // Elaborate New Portfolio Modal
+  newPortfolioModal: document.getElementById("newPortfolioModal"),
+  btnCloseNewModal: document.getElementById("btnCloseNewModal"),
+  btnCancelNewModal: document.getElementById("btnCancelNewModal"),
+  btnSubmitNewModal: document.getElementById("btnSubmitNewModal"),
+  btnPrefillDemo: document.getElementById("btnPrefillDemo"),
+  btnAddHoldingRow: document.getElementById("btnAddHoldingRow"),
+  newHoldingsTableBody: document.getElementById("newHoldingsTableBody"),
+  newSummaryNetWorth: document.getElementById("newSummaryNetWorth"),
+  newSummaryTopIssuer: document.getElementById("newSummaryTopIssuer"),
+  newSummaryPnL: document.getElementById("newSummaryPnL"),
+
+  // Form Inputs
+  newClientId: document.getElementById("newClientId"),
+  newClientName: document.getElementById("newClientName"),
+  newClientPersona: document.getElementById("newClientPersona"),
+  newTaxStatus: document.getElementById("newTaxStatus"),
+  newRiskProfile: document.getElementById("newRiskProfile"),
+  newPrimaryGoal: document.getElementById("newPrimaryGoal"),
+  newTargetLiquidity: document.getElementById("newTargetLiquidity"),
+  newLiquidityHorizon: document.getElementById("newLiquidityHorizon"),
+  newSecondaryGoal: document.getElementById("newSecondaryGoal"),
+  newAnnualRealizationCap: document.getElementById("newAnnualRealizationCap"),
+  newRestrictedSecurities: document.getElementById("newRestrictedSecurities"),
+  newHarvestLosses: document.getElementById("newHarvestLosses")
 };
+
+function resolveClientId(portfolioId) {
+  if (!portfolioId) return "CLIENT_001";
+  if (portfolioId === "scenario_001") return "CLIENT_001";
+  if (portfolioId === "scenario_002") return "CLIENT_002";
+  if (portfolioId === "scenario_custom") return "CLIENT_CUSTOM";
+  if (portfolioId.startsWith("scenario_")) {
+    return portfolioId.replace("scenario_", "").toUpperCase();
+  }
+  return portfolioId.toUpperCase();
+}
 
 // ==============================================================================
 // 1. DATA INITIALIZATION & FALLBACK SNAPSHOTS
@@ -103,7 +142,17 @@ async function loadPortfolio(portfolioId) {
   state.isApproved = false;
   resetApprovalButton();
 
-  // Try API fetch
+  const cid = resolveClientId(portfolioId);
+
+  // Fetch client profile if available
+  try {
+    const cRes = await fetch(`/api/client/${cid.toLowerCase()}`);
+    if (cRes.ok) {
+      state.clientProfile = await cRes.json();
+    }
+  } catch (e) {}
+
+  // Try API fetch for traces
   if (state.apiAvailable || window.location.protocol.startsWith("http")) {
     try {
       const res = await fetch(`/api/trace/${portfolioId}`);
@@ -173,21 +222,33 @@ function renderPlatform() {
     els.kpiHealthScore.textContent = "92 / 100";
     els.lblAllocNetWorth.textContent = "₹8.00 Cr";
   } else {
-    // Custom Scenario (Vikram Malhotra)
-    els.clientName.textContent = "Vikram Malhotra";
-    els.clientPersona.textContent = "Healthcare Founder & Angel Investor";
-    els.inputTargetLiquidity.value = "₹3,50,00,000";
-    els.selectHorizon.value = "2";
+    // Custom Scenario (Dynamic from state.clientProfile or state.data)
+    const cInfo = state.clientProfile || (state.data && state.data.client) || {};
+    const cName = cInfo.name || (state.data.clientId === "CLIENT_CUSTOM" ? "Vikram Malhotra" : (state.data.clientId || "Custom Investor"));
+    const cPersona = cInfo.persona || (state.data.clientId === "CLIENT_CUSTOM" ? "Healthcare Founder & Angel" : "High-Net-Worth Portfolio");
+    const nwINR = cInfo.netWorthINR || (state.data.clientId === "CLIENT_CUSTOM" ? 150000000 : 100000000);
+    const nwCr = (nwINR / 10000000).toFixed(2);
+    const topPct = cInfo.exposure?.topIssuerPct || (cInfo.holdings?.[0]?.pctOfNetWorth) || 42.0;
+    const topName = cInfo.holdings?.[0]?.issuer || (state.data.clientId === "CLIENT_CUSTOM" ? "PHARMA_TECH_LTD" : "TOP_SECURITY");
+    const liqGoal = cInfo.goals?.[0]?.amountINR || 25000000;
+    const liqCr = (liqGoal / 10000000).toFixed(2);
+    const horizon = cInfo.goals?.[0]?.horizonYears || 2;
+    const rProfile = (cInfo.riskProfile || "moderate").toUpperCase();
+
+    els.clientName.textContent = cName;
+    els.clientPersona.textContent = `${cPersona} | ${rProfile} RISK`;
+    els.inputTargetLiquidity.value = `₹${(liqGoal).toLocaleString("en-IN")}`;
+    els.selectHorizon.value = String(horizon);
     els.selectMandate.value = "tax_optimized";
 
-    els.kpiNetWorth.textContent = "₹15.00 Cr";
-    els.kpiTopIssuer.textContent = "45.0%";
-    els.kpiTopIssuerName.textContent = "PHARMA_TECH_LTD (Healthcare)";
-    els.kpiLiquidityGoal.textContent = "₹3.50 Cr";
-    els.kpiHorizon.textContent = "2-Year Hospital Window";
-    els.kpiTaxSavings.textContent = "₹18.20 L";
-    els.kpiHealthScore.textContent = "91 / 100";
-    els.lblAllocNetWorth.textContent = "₹15.00 Cr";
+    els.kpiNetWorth.textContent = `₹${nwCr} Cr`;
+    els.kpiTopIssuer.textContent = `${topPct}%`;
+    els.kpiTopIssuerName.textContent = `${topName}`;
+    els.kpiLiquidityGoal.textContent = `₹${liqCr} Cr`;
+    els.kpiHorizon.textContent = `${horizon}-Year Structured Window`;
+    els.kpiTaxSavings.textContent = "₹15.00 L";
+    els.kpiHealthScore.textContent = "90 / 100";
+    els.lblAllocNetWorth.textContent = `₹${nwCr} Cr`;
   }
 
   // 2. Render Strategy Cards
@@ -847,8 +908,7 @@ els.btnUpdateMandate.addEventListener("click", async () => {
 
   if (state.apiAvailable) {
     try {
-      const clientId = state.currentPortfolio === "scenario_001" ? "CLIENT_001" 
-        : (state.currentPortfolio === "scenario_002" ? "CLIENT_002" : "CLIENT_CUSTOM");
+      const clientId = resolveClientId(state.currentPortfolio);
       const goal = `Target liquidity ${els.inputTargetLiquidity.value} over ${els.selectHorizon.value} years under ${els.selectMandate.value} mandate.`;
       
       const res = await fetch("/api/run", {
@@ -1063,8 +1123,391 @@ function getInstitutionalSnapshot(portfolioId) {
   }
 }
 
+// ==============================================================================
+// 5. DYNAMIC PORTFOLIO ACCOUNT ONBOARDING & PRE-FILL DEMO ENGINE
+// ==============================================================================
+
+const DEMO_PORTFOLIO_VALUES = {
+  clientId: "CLIENT_004",
+  name: "Aditya Singhania",
+  persona: "Angel Investor & DeepTech Founder",
+  taxStatus: "Resident Individual",
+  riskProfile: "moderate",
+  primaryGoal: "Tax-efficient single-stock de-risking; need ₹2.5 Cr immediate liquidity within 2 years for overseas business expansion.",
+  targetLiquidityINR: 25000000,
+  liquidityHorizonYears: 2,
+  secondaryGoal: "Long-term family trust endowment: ₹4.0 Cr over 8 years",
+  annualRealizationCapINR: 20000000,
+  restrictedSecurities: "SINGHANIA_TECH",
+  harvestLosses: true,
+  holdings: [
+    {
+      assetClass: "listed_equity",
+      issuer: "SINGHANIA_TECH",
+      sector: "Technology",
+      valueINR: 42000000,
+      costBasisINR: 12000000,
+      holdingPeriodMonths: 36
+    },
+    {
+      assetClass: "listed_equity",
+      issuer: "GREEN_ENERGY_LTD",
+      sector: "CleanTech",
+      valueINR: 3000000,
+      costBasisINR: 4500000,
+      holdingPeriodMonths: 18
+    },
+    {
+      assetClass: "mutual_funds",
+      issuer: "ICICI_PRU_BLUECHIP_FUND",
+      sector: "Diversified_Equity",
+      valueINR: 15000000,
+      costBasisINR: 11000000,
+      holdingPeriodMonths: 24
+    },
+    {
+      assetClass: "pms",
+      issuer: "MARCELLUS_CONSISTENT_COMPOUNDERS",
+      sector: "Financials",
+      valueINR: 16000000,
+      costBasisINR: 13000000,
+      holdingPeriodMonths: 30
+    },
+    {
+      assetClass: "debt_fixed_income",
+      issuer: "GOI_7_26_SOVEREIGN_BOND",
+      sector: "Sovereign_Debt",
+      valueINR: 14000000,
+      costBasisINR: 14000000,
+      holdingPeriodMonths: 12
+    },
+    {
+      assetClass: "real_estate",
+      issuer: "MUMBAI_BANDRA_COMMERCIAL",
+      sector: "Real_Estate",
+      valueINR: 10000000,
+      costBasisINR: 7500000,
+      holdingPeriodMonths: 48
+    }
+  ]
+};
+
+let currentNewHoldings = [];
+
+function prefillNewPortfolioDemo() {
+  if (!els.newClientId) return;
+  els.newClientId.value = DEMO_PORTFOLIO_VALUES.clientId;
+  els.newClientName.value = DEMO_PORTFOLIO_VALUES.name;
+  els.newClientPersona.value = DEMO_PORTFOLIO_VALUES.persona;
+  els.newTaxStatus.value = DEMO_PORTFOLIO_VALUES.taxStatus;
+  els.newRiskProfile.value = DEMO_PORTFOLIO_VALUES.riskProfile;
+  els.newPrimaryGoal.value = DEMO_PORTFOLIO_VALUES.primaryGoal;
+  els.newTargetLiquidity.value = DEMO_PORTFOLIO_VALUES.targetLiquidityINR;
+  els.newLiquidityHorizon.value = String(DEMO_PORTFOLIO_VALUES.liquidityHorizonYears);
+  els.newSecondaryGoal.value = DEMO_PORTFOLIO_VALUES.secondaryGoal;
+  els.newAnnualRealizationCap.value = DEMO_PORTFOLIO_VALUES.annualRealizationCapINR;
+  els.newRestrictedSecurities.value = DEMO_PORTFOLIO_VALUES.restrictedSecurities;
+  els.newHarvestLosses.checked = DEMO_PORTFOLIO_VALUES.harvestLosses;
+
+  currentNewHoldings = JSON.parse(JSON.stringify(DEMO_PORTFOLIO_VALUES.holdings));
+  renderNewHoldingsTable();
+}
+
+function renderNewHoldingsTable() {
+  if (!els.newHoldingsTableBody) return;
+  els.newHoldingsTableBody.innerHTML = "";
+
+  currentNewHoldings.forEach((h, idx) => {
+    const tr = document.createElement("tr");
+    tr.style.borderBottom = "1px solid var(--border-light)";
+    tr.innerHTML = `
+      <td style="padding: 6px 8px;">
+        <select class="table-input" data-field="assetClass" data-idx="${idx}">
+          <option value="listed_equity" ${h.assetClass === 'listed_equity' ? 'selected' : ''}>Listed Equity</option>
+          <option value="mutual_funds" ${h.assetClass === 'mutual_funds' ? 'selected' : ''}>Mutual Funds</option>
+          <option value="pms" ${h.assetClass === 'pms' ? 'selected' : ''}>PMS Portfolio</option>
+          <option value="aif" ${h.assetClass === 'aif' ? 'selected' : ''}>Category-II AIF</option>
+          <option value="debt_fixed_income" ${h.assetClass === 'debt_fixed_income' ? 'selected' : ''}>Sovereign Debt</option>
+          <option value="real_estate" ${h.assetClass === 'real_estate' ? 'selected' : ''}>Real Estate</option>
+          <option value="unlisted_equity" ${h.assetClass === 'unlisted_equity' ? 'selected' : ''}>Unlisted Equity</option>
+          <option value="cash_equivalents" ${h.assetClass === 'cash_equivalents' ? 'selected' : ''}>Cash / Liquid</option>
+        </select>
+      </td>
+      <td style="padding: 6px 8px;">
+        <input type="text" class="table-input" data-field="issuer" data-idx="${idx}" value="${h.issuer || ''}" placeholder="e.g. INFY">
+      </td>
+      <td style="padding: 6px 8px;">
+        <select class="table-input" data-field="sector" data-idx="${idx}">
+          <option value="Technology" ${h.sector === 'Technology' ? 'selected' : ''}>Technology</option>
+          <option value="Financials" ${h.sector === 'Financials' ? 'selected' : ''}>Financials</option>
+          <option value="CleanTech" ${h.sector === 'CleanTech' ? 'selected' : ''}>CleanTech</option>
+          <option value="Healthcare" ${h.sector === 'Healthcare' ? 'selected' : ''}>Healthcare</option>
+          <option value="Sovereign_Debt" ${h.sector === 'Sovereign_Debt' ? 'selected' : ''}>Sovereign Debt</option>
+          <option value="Real_Estate" ${h.sector === 'Real_Estate' ? 'selected' : ''}>Real Estate</option>
+          <option value="Diversified_Equity" ${h.sector === 'Diversified_Equity' ? 'selected' : ''}>Diversified</option>
+          <option value="Alternatives" ${h.sector === 'Alternatives' ? 'selected' : ''}>Alternatives</option>
+        </select>
+      </td>
+      <td style="padding: 6px 8px;">
+        <input type="number" class="table-input" data-field="valueINR" data-idx="${idx}" value="${h.valueINR || 0}" step="100000" min="0">
+      </td>
+      <td style="padding: 6px 8px;">
+        <input type="number" class="table-input" data-field="costBasisINR" data-idx="${idx}" value="${h.costBasisINR || 0}" step="100000" min="0">
+      </td>
+      <td style="padding: 6px 8px;">
+        <input type="number" class="table-input" data-field="holdingPeriodMonths" data-idx="${idx}" value="${h.holdingPeriodMonths || 12}" min="0">
+      </td>
+      <td style="padding: 6px 8px; text-align: center;">
+        <button type="button" class="btn-delete-row" data-idx="${idx}" title="Delete Asset">✕</button>
+      </td>
+    `;
+    els.newHoldingsTableBody.appendChild(tr);
+  });
+
+  // Attach live update listeners to table inputs
+  const inputs = els.newHoldingsTableBody.querySelectorAll(".table-input");
+  inputs.forEach(input => {
+    input.addEventListener("input", (e) => {
+      const idx = parseInt(e.target.getAttribute("data-idx"));
+      const field = e.target.getAttribute("data-field");
+      let val = e.target.value;
+      if (field === "valueINR" || field === "costBasisINR") {
+        val = parseFloat(val) || 0;
+      } else if (field === "holdingPeriodMonths") {
+        val = parseInt(val) || 0;
+      }
+      currentNewHoldings[idx][field] = val;
+      recalcNewPortfolioSummary();
+    });
+  });
+
+  // Attach delete button listeners
+  const deleteBtns = els.newHoldingsTableBody.querySelectorAll(".btn-delete-row");
+  deleteBtns.forEach(btn => {
+    btn.addEventListener("click", (e) => {
+      const idx = parseInt(e.currentTarget.getAttribute("data-idx"));
+      currentNewHoldings.splice(idx, 1);
+      renderNewHoldingsTable();
+    });
+  });
+
+  recalcNewPortfolioSummary();
+}
+
+function recalcNewPortfolioSummary() {
+  const totalNW = currentNewHoldings.reduce((sum, h) => sum + (parseFloat(h.valueINR) || 0), 0);
+  const totalCost = currentNewHoldings.reduce((sum, h) => sum + (parseFloat(h.costBasisINR) || 0), 0);
+  const netPnL = totalNW - totalCost;
+
+  let maxHoldingVal = 0;
+  currentNewHoldings.forEach(h => {
+    const v = parseFloat(h.valueINR) || 0;
+    if (v > maxHoldingVal) maxHoldingVal = v;
+  });
+  const topPct = totalNW > 0 ? ((maxHoldingVal / totalNW) * 100).toFixed(1) : "0.0";
+
+  const nwCr = (totalNW / 10000000).toFixed(2);
+  const pnlL = (Math.abs(netPnL) / 100000).toFixed(2);
+  const pnlSign = netPnL >= 0 ? "+" : "-";
+
+  if (els.newSummaryNetWorth) els.newSummaryNetWorth.textContent = `₹${nwCr} Cr`;
+  if (els.newSummaryTopIssuer) els.newSummaryTopIssuer.textContent = `${topPct}%`;
+  if (els.newSummaryPnL) {
+    els.newSummaryPnL.textContent = `${pnlSign}₹${pnlL} L`;
+    els.newSummaryPnL.style.color = netPnL >= 0 ? "var(--brand-emerald)" : "#ef4444";
+  }
+}
+
+// Modal Toggle Handlers
+if (els.btnOpenNewPortfolio) {
+  els.btnOpenNewPortfolio.addEventListener("click", () => {
+    els.newPortfolioModal.classList.add("open");
+    if (!currentNewHoldings.length) {
+      prefillNewPortfolioDemo();
+    }
+  });
+}
+
+if (els.btnCloseNewModal) {
+  els.btnCloseNewModal.addEventListener("click", () => {
+    els.newPortfolioModal.classList.remove("open");
+  });
+}
+
+if (els.btnCancelNewModal) {
+  els.btnCancelNewModal.addEventListener("click", () => {
+    els.newPortfolioModal.classList.remove("open");
+  });
+}
+
+if (els.btnPrefillDemo) {
+  els.btnPrefillDemo.addEventListener("click", () => {
+    prefillNewPortfolioDemo();
+  });
+}
+
+if (els.btnAddHoldingRow) {
+  els.btnAddHoldingRow.addEventListener("click", () => {
+    currentNewHoldings.push({
+      assetClass: "listed_equity",
+      issuer: "NEW_SECURITY",
+      sector: "Technology",
+      valueINR: 5000000,
+      costBasisINR: 4000000,
+      holdingPeriodMonths: 12
+    });
+    renderNewHoldingsTable();
+  });
+}
+
+// New Portfolio Submit Handler
+if (els.btnSubmitNewModal) {
+  els.btnSubmitNewModal.addEventListener("click", async () => {
+    els.btnSubmitNewModal.disabled = true;
+    els.btnSubmitNewModal.innerHTML = "<span>Creating Account & Ingesting Portfolio...</span>";
+
+    try {
+      const clientId = els.newClientId.value.trim().toUpperCase() || "CLIENT_CUSTOM";
+      const name = els.newClientName.value.trim() || "Private Wealth Client";
+      const persona = els.newClientPersona.value.trim() || "High-Net-Worth Investor";
+      const taxStatus = els.newTaxStatus.value;
+      const riskProfile = els.newRiskProfile.value;
+      const primaryGoal = els.newPrimaryGoal.value.trim();
+      const targetLiquidity = parseFloat(els.newTargetLiquidity.value) || 20000000;
+      const horizonYears = parseFloat(els.newLiquidityHorizon.value) || 2;
+      const secondaryGoal = els.newSecondaryGoal.value.trim();
+      const capINR = parseFloat(els.newAnnualRealizationCap.value) || 20000000;
+      const restrictedSecurities = els.newRestrictedSecurities.value.split(",").map(s => s.trim().toUpperCase()).filter(Boolean);
+      const harvestLosses = els.newHarvestLosses.checked;
+
+      const goals = [
+        {
+          type: "liquidity",
+          amountINR: targetLiquidity,
+          horizonYears: horizonYears,
+          description: primaryGoal
+        }
+      ];
+      if (secondaryGoal) {
+        goals.push({
+          type: "wealth_preservation",
+          amountINR: 40000000,
+          horizonYears: 8,
+          description: secondaryGoal
+        });
+      }
+
+      const payload = {
+        clientId: clientId,
+        name: name,
+        persona: persona,
+        taxStatus: taxStatus,
+        riskProfile: riskProfile,
+        primaryGoal: primaryGoal,
+        goals: goals,
+        holdings: currentNewHoldings,
+        restrictedSecurities: restrictedSecurities,
+        annualRealizationCapINR: capINR,
+        harvestLosses: harvestLosses
+      };
+
+      // 1. POST to /api/portfolio/create
+      const res = await fetch("/api/portfolio/create", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      });
+
+      if (!res.ok) {
+        const err = await res.json();
+        throw new Error(err.error || "Failed to create portfolio account.");
+      }
+
+      const createdData = await res.json();
+      const newScenarioId = createdData.scenarioId || `scenario_${clientId.toLowerCase()}`;
+
+      // 2. Refresh scenario pills in nav bar
+      await syncScenarios(newScenarioId);
+
+      // 3. Close modal
+      els.newPortfolioModal.classList.remove("open");
+
+      // 4. Trigger live multi-agent optimization immediately
+      els.btnSubmitNewModal.innerHTML = "<span>Running Multi-Agent Optimization...</span>";
+      const runRes = await fetch("/api/run", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          clientId: clientId,
+          goal: primaryGoal,
+          maxRevisionRounds: 3
+        })
+      });
+
+      if (runRes.ok) {
+        state.data = await runRes.json();
+        state.currentPortfolio = newScenarioId;
+        renderPlatform();
+      } else {
+        await loadPortfolio(newScenarioId);
+      }
+
+    } catch (err) {
+      alert("Error creating portfolio: " + err.message);
+    } finally {
+      els.btnSubmitNewModal.disabled = false;
+      els.btnSubmitNewModal.innerHTML = "<span>Create Account & Run Multi-Agent Optimization</span>";
+    }
+  });
+}
+
+// Synchronize Scenarios with Backend
+async function syncScenarios(activeScenarioIdToSelect) {
+  if (!els.navScenarioContainer) return;
+  try {
+    const res = await fetch("/api/scenarios");
+    if (res.ok) {
+      const data = await res.json();
+      const scenarios = data.scenarios || [];
+
+      // Rebuild pills inside navScenarioContainer
+      els.navScenarioContainer.innerHTML = "";
+      scenarios.forEach(sc => {
+        const btn = document.createElement("button");
+        btn.className = "scenario-pill";
+        if (sc.id === (activeScenarioIdToSelect || state.currentPortfolio)) {
+          btn.classList.add("active");
+        }
+        btn.setAttribute("data-portfolio", sc.id);
+
+        const dotColor = sc.id === "scenario_001" ? "var(--brand-emerald)"
+          : (sc.id === "scenario_002" ? "var(--brand-cyan)" 
+          : (sc.id === "scenario_custom" ? "var(--brand-amber)" : "#a855f7"));
+
+        const shortNetWorth = sc.netWorthINR ? `₹${(sc.netWorthINR / 10000000).toFixed(0)} Cr` : "";
+        btn.innerHTML = `
+          <span class="status-dot" style="background: ${dotColor};"></span>
+          <span>${sc.title.split("—")[0].trim()} (${shortNetWorth})</span>
+        `;
+
+        btn.addEventListener("click", () => {
+          document.querySelectorAll(".scenario-pill").forEach(p => p.classList.remove("active"));
+          btn.classList.add("active");
+          loadPortfolio(sc.id);
+        });
+
+        els.navScenarioContainer.appendChild(btn);
+      });
+    }
+  } catch (e) {
+    console.warn("Could not sync scenarios from backend", e);
+  }
+}
+
 // Initialize on Load
 window.addEventListener("DOMContentLoaded", async () => {
   await checkApiHealth();
+  await syncScenarios("scenario_001");
   await loadPortfolio("scenario_001");
+  prefillNewPortfolioDemo();
 });

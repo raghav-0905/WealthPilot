@@ -24,7 +24,7 @@
     </div>
 
     <!-- Active Portfolio Selector -->
-    <nav class="nav-center" aria-label="Portfolio Selector">
+    <nav class="nav-center" id="navScenarioContainer" aria-label="Portfolio Selector">
       <button class="scenario-pill active" id="btnPortfolio1" data-portfolio="scenario_001">
         <span class="status-dot"></span>
         <span>Rajesh Varma (Promoter • ₹12 Cr)</span>
@@ -41,6 +41,15 @@
 
     <!-- Header Actions -->
     <div class="nav-actions">
+      <button class="btn btn-emerald" id="btnOpenNewPortfolio" title="Create a new portfolio account" style="background: linear-gradient(135deg, #059669 0%, #10b981 100%); color: #ffffff; border: 1px solid rgba(16, 185, 129, 0.4); font-weight: 600; box-shadow: 0 4px 14px rgba(16, 185, 129, 0.25);">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"></circle>
+          <line x1="12" y1="8" x2="12" y2="16"></line>
+          <line x1="8" y1="12" x2="16" y2="12"></line>
+        </svg>
+        <span>+ New Portfolio</span>
+      </button>
+
       <button class="btn btn-secondary" id="btnCustomMandate" title="Configure custom investment objectives">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
@@ -433,6 +442,205 @@
           <span>Run Wealth Optimization</span>
         </button>
       </div>
+    </div>
+  </div>
+
+  <!-- Elaborate Institutional Portfolio Onboarding Modal -->
+  <div class="modal-overlay" id="newPortfolioModal">
+    <div class="modal-card modal-card-lg" style="width: 1020px; max-width: 96vw; max-height: 90vh; overflow-y: auto;">
+      
+      <!-- Modal Header -->
+      <div style="display: flex; justify-content: space-between; align-items: flex-start; padding-bottom: 16px; border-bottom: 1px solid var(--border-light);">
+        <div>
+          <div style="display: flex; align-items: center; gap: 10px;">
+            <div style="width: 32px; height: 32px; border-radius: 8px; background: rgba(16, 185, 129, 0.15); color: var(--brand-emerald); display: grid; place-items: center; font-weight: 800;">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="12" y1="5" x2="12" y2="19"></line>
+                <line x1="5" y1="12" x2="16" y2="12"></line>
+              </svg>
+            </div>
+            <div>
+              <h3 style="font-size: 20px; font-weight: 800; color: var(--text-primary); margin: 0;">Create New Portfolio Account</h3>
+              <p style="font-size: 13px; color: var(--text-muted); margin: 3px 0 0 0;">Institutional Onboarding & Granular Multi-Asset Intake Engine</p>
+            </div>
+          </div>
+        </div>
+
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <button class="btn btn-secondary" id="btnPrefillDemo" type="button" style="background: rgba(37, 99, 235, 0.08); border-color: rgba(37, 99, 235, 0.3); color: var(--brand-primary); font-size: 12px; font-weight: 700; padding: 6px 12px;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+            </svg>
+            <span>✨ Load Demo Values</span>
+          </button>
+          <button class="btn btn-secondary" id="btnCloseNewModal" type="button" style="padding: 4px 10px; font-size: 16px;">✕</button>
+        </div>
+      </div>
+
+      <form id="formNewPortfolio" onsubmit="return false;" style="margin-top: 20px;">
+        
+        <!-- SECTION 1: Client Demographics & Tax Status -->
+        <div style="margin-bottom: 24px;">
+          <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">
+            <span style="font-size: 11px; font-weight: 800; text-transform: uppercase; background: #eff6ff; color: #1e40af; padding: 3px 8px; border-radius: 6px;">Step 1</span>
+            <h4 style="font-size: 14px; font-weight: 700; color: var(--text-primary); margin: 0;">Client Identity & Tax Residency</h4>
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1fr 1.5fr 1.5fr; gap: 14px;">
+            <div>
+              <label class="input-label" for="newClientId">Account ID</label>
+              <input type="text" class="text-input" id="newClientId" value="CLIENT_004" required>
+            </div>
+            <div>
+              <label class="input-label" for="newClientName">Legal Client Name</label>
+              <input type="text" class="text-input" id="newClientName" value="Aditya Singhania" required>
+            </div>
+            <div>
+              <label class="input-label" for="newClientPersona">Investor Persona / Role</label>
+              <input type="text" class="text-input" id="newClientPersona" value="Angel Investor & DeepTech Founder" required>
+            </div>
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1.5fr 1fr; gap: 14px; margin-top: 12px;">
+            <div>
+              <label class="input-label" for="newTaxStatus">Tax Residency Status</label>
+              <select class="text-input" id="newTaxStatus">
+                <option value="Resident Individual" selected>Resident Individual (Sec 112A/111A Capital Gains)</option>
+                <option value="Non-Resident Indian (NRI)">Non-Resident Indian (NRI / FEMA Compliance)</option>
+                <option value="Hindu Undivided Family (HUF)">Hindu Undivided Family (HUF)</option>
+                <option value="Domestic Company / LLP">Domestic Company / LLP</option>
+              </select>
+            </div>
+            <div>
+              <label class="input-label" for="newRiskProfile">Stated Risk Tolerance</label>
+              <select class="text-input" id="newRiskProfile">
+                <option value="conservative">Conservative (Capital Preservation Focus)</option>
+                <option value="moderate" selected>Moderate (Balanced Compounding & Growth)</option>
+                <option value="aggressive">Aggressive (High Alpha & Alternatives)</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- SECTION 2: Mandate & Financial Objectives -->
+        <div style="margin-bottom: 24px; padding-top: 18px; border-top: 1px dashed var(--border-light);">
+          <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">
+            <span style="font-size: 11px; font-weight: 800; text-transform: uppercase; background: #ecfdf5; color: #065f46; padding: 3px 8px; border-radius: 6px;">Step 2</span>
+            <h4 style="font-size: 14px; font-weight: 700; color: var(--text-primary); margin: 0;">Investment Mandate & Liquidity Objectives</h4>
+          </div>
+
+          <div style="margin-bottom: 12px;">
+            <label class="input-label" for="newPrimaryGoal">Primary Strategic Mandate</label>
+            <textarea class="text-input" id="newPrimaryGoal" rows="2" required>Tax-efficient single-stock de-risking; need ₹2.5 Cr immediate liquidity within 2 years for overseas business expansion.</textarea>
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1.5fr 1fr 2fr; gap: 14px;">
+            <div>
+              <label class="input-label" for="newTargetLiquidity">Target Liquidity Milestone (₹)</label>
+              <input type="number" class="text-input" id="newTargetLiquidity" value="25000000" min="0" step="500000" required>
+            </div>
+            <div>
+              <label class="input-label" for="newLiquidityHorizon">Horizon (Years)</label>
+              <select class="text-input" id="newLiquidityHorizon">
+                <option value="1">1 Year (Urgent)</option>
+                <option value="2" selected>2 Years (Medium-Term)</option>
+                <option value="3">3 Years</option>
+                <option value="5">5 Years (Strategic)</option>
+              </select>
+            </div>
+            <div>
+              <label class="input-label" for="newSecondaryGoal">Secondary Milestone Objective</label>
+              <input type="text" class="text-input" id="newSecondaryGoal" value="Long-term family trust endowment: ₹4.0 Cr over 8 years">
+            </div>
+          </div>
+        </div>
+
+        <!-- SECTION 3: Granular Portfolio Holdings -->
+        <div style="margin-bottom: 24px; padding-top: 18px; border-top: 1px dashed var(--border-light);">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <span style="font-size: 11px; font-weight: 800; text-transform: uppercase; background: #fef3c7; color: #92400e; padding: 3px 8px; border-radius: 6px;">Step 3</span>
+              <h4 style="font-size: 14px; font-weight: 700; color: var(--text-primary); margin: 0;">Portfolio Asset Holdings (Granular Intake)</h4>
+            </div>
+
+            <!-- Real-Time Metrics Ribbon -->
+            <div style="display: flex; gap: 12px; font-size: 12px;">
+              <span style="padding: 4px 10px; background: #f8fafc; border: 1px solid var(--border-light); border-radius: 8px;">
+                Net Worth: <strong id="newSummaryNetWorth" style="color: var(--brand-primary);">₹10,00,00,000</strong>
+              </span>
+              <span style="padding: 4px 10px; background: #f8fafc; border: 1px solid var(--border-light); border-radius: 8px;">
+                Top Issuer: <strong id="newSummaryTopIssuer" style="color: #b91c1c;">42.0%</strong>
+              </span>
+              <span style="padding: 4px 10px; background: #f8fafc; border: 1px solid var(--border-light); border-radius: 8px;">
+                Unrealized Gains: <strong id="newSummaryPnL" style="color: var(--brand-emerald);">+₹2,45,00,000</strong>
+              </span>
+            </div>
+          </div>
+
+          <div style="overflow-x: auto; border: 1px solid var(--border-light); border-radius: 12px; background: #ffffff;">
+            <table style="width: 100%; border-collapse: collapse; font-size: 12px;">
+              <thead>
+                <tr style="background: #f8fafc; border-bottom: 1px solid var(--border-light); text-align: left; color: var(--text-secondary);">
+                  <th style="padding: 10px 12px;">Asset Class</th>
+                  <th style="padding: 10px 12px;">Issuer / Security Ticker</th>
+                  <th style="padding: 10px 12px;">Sector</th>
+                  <th style="padding: 10px 12px;">Market Value (₹)</th>
+                  <th style="padding: 10px 12px;">Cost Basis (₹)</th>
+                  <th style="padding: 10px 12px;">Holding (Mo)</th>
+                  <th style="padding: 10px 12px; width: 40px; text-align: center;">Act</th>
+                </tr>
+              </thead>
+              <tbody id="newHoldingsTableBody">
+                <!-- Injected via JavaScript -->
+              </tbody>
+            </table>
+          </div>
+
+          <div style="margin-top: 10px; display: flex; justify-content: space-between; align-items: center;">
+            <button class="btn btn-secondary" id="btnAddHoldingRow" type="button" style="font-size: 12px; font-weight: 700; padding: 6px 14px;">
+              + Add Asset Row
+            </button>
+            <span style="font-size: 11px; color: var(--text-muted);">Cost basis and holding period enable exact LTCG/STCG and loss-harvesting calculations.</span>
+          </div>
+        </div>
+
+        <!-- SECTION 4: Directives & Surcharge Constraints -->
+        <div style="margin-bottom: 24px; padding-top: 18px; border-top: 1px dashed var(--border-light);">
+          <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">
+            <span style="font-size: 11px; font-weight: 800; text-transform: uppercase; background: #f3e8ff; color: #6b21a8; padding: 3px 8px; border-radius: 6px;">Step 4</span>
+            <h4 style="font-size: 14px; font-weight: 700; color: var(--text-primary); margin: 0;">Compliance & Surcharge Directives</h4>
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1.5fr 1.5fr 1fr; gap: 14px; align-items: center;">
+            <div>
+              <label class="input-label" for="newAnnualRealizationCap">Annual Capital Gain Cap (₹)</label>
+              <input type="number" class="text-input" id="newAnnualRealizationCap" value="20000000" min="0" step="1000000">
+              <span style="font-size: 11px; color: var(--text-muted);">Enforces 15% surcharge ceiling (avoids 25% slab).</span>
+            </div>
+            <div>
+              <label class="input-label" for="newRestrictedSecurities">Board / Blackout Restricted Tickers</label>
+              <input type="text" class="text-input" id="newRestrictedSecurities" value="SINGHANIA_TECH">
+              <span style="font-size: 11px; color: var(--text-muted);">Comma-separated securities with lock-ins or blackout windows.</span>
+            </div>
+            <div style="padding-top: 6px;">
+              <label class="input-label">Loss-Harvesting</label>
+              <label style="display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 600; cursor: pointer; margin-top: 8px;">
+                <input type="checkbox" id="newHarvestLosses" checked style="width: 18px; height: 18px; accent-color: var(--brand-emerald);">
+                <span>Mandate Offset</span>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <!-- Footer Actions -->
+        <div style="display: flex; justify-content: flex-end; align-items: center; gap: 12px; padding-top: 18px; border-top: 1px solid var(--border-light);">
+          <button class="btn btn-secondary" id="btnCancelNewModal" type="button">Cancel</button>
+          <button class="btn btn-primary" id="btnSubmitNewModal" type="button" style="background: linear-gradient(135deg, #059669 0%, #10b981 100%); border: none; font-weight: 700; padding: 12px 24px;">
+            <span>Create Account & Run Multi-Agent Optimization</span>
+          </button>
+        </div>
+
+      </form>
     </div>
   </div>
 
