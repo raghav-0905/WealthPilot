@@ -1,0 +1,16 @@
+.git
+.github
+.agents
+.venv
+.env
+.pytest_cache
+.vscode
+node_modules
+frontend
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+*.log
+tests
+docs

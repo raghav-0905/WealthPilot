@@ -1,0 +1,9 @@
+{
+  "actorSpecification": 1,
+  "name": "wealthpilot-orchestrator",
+  "title": "WealthPilot Orchestrator",
+  "description": "Autonomous Multi-Agent Institutional Wealth Advisory & SEBI/Tax Rebalancing Platform",
+  "version": "0.1",
+  "dockerfile": "./Dockerfile",
+  "input": "./input_schema.json"
+}

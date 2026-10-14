@@ -1,0 +1,30 @@
+{
+  "title": "WealthPilot Orchestrator Input",
+  "type": "object",
+  "schemaVersion": 1,
+  "properties": {
+    "clientId": {
+      "title": "Client ID",
+      "type": "string",
+      "description": "Identifier for the client mandate (e.g. CLIENT_001, CLIENT_002, or custom)",
+      "editor": "textfield",
+      "default": "CLIENT_001"
+    },
+    "goal": {
+      "title": "Advisory & Rebalancing Goal",
+      "type": "string",
+      "description": "Client's liquidity need, time horizon, and strategic mandate",
+      "editor": "textarea",
+      "default": "Reduce concentration in own company stock tax-efficiently; need ₹2 Cr liquidity in 2 years."
+    },
+    "maxRevisionRounds": {
+      "title": "Max Revision Rounds",
+      "type": "integer",
+      "description": "Maximum multi-agent feedback & replanning cycles if compliance or tax veto triggers",
+      "default": 3,
+      "minimum": 1,
+      "maximum": 5
+    }
+  },
+  "required": ["clientId", "goal"]
+}
