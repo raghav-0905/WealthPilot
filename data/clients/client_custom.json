@@ -1,0 +1,76 @@
+{
+  "clientId": "CLIENT_CUSTOM",
+  "name": "Vikram Malhotra",
+  "persona": "Healthcare Founder & Angel Investor",
+  "netWorthINR": 150000000,
+  "riskProfile": "moderate",
+  "goals": [
+    {
+      "type": "liquidity",
+      "amountINR": 35000000,
+      "horizonYears": 2,
+      "description": "Liquidity for specialty healthcare hospital expansion"
+    },
+    {
+      "type": "wealth_preservation",
+      "amountINR": 70000000,
+      "horizonYears": 10,
+      "description": "Multi-generational family wealth endowment"
+    }
+  ],
+  "holdings": [
+    {
+      "assetClass": "listed_equity",
+      "issuer": "PHARMA_TECH_LTD",
+      "valueINR": 67500000,
+      "pctOfNetWorth": 45.0
+    },
+    {
+      "assetClass": "debt_fixed_income",
+      "issuer": "GOI_BONDS_7_18",
+      "valueINR": 22500000,
+      "pctOfNetWorth": 15.0
+    },
+    {
+      "assetClass": "mutual_funds",
+      "issuer": "NIPPON_INDIA_PHARMA_FUND",
+      "valueINR": 15000000,
+      "pctOfNetWorth": 10.0
+    },
+    {
+      "assetClass": "pms",
+      "issuer": "HEALTHCARE_ALPHA_PMS",
+      "valueINR": 25000000,
+      "pctOfNetWorth": 16.67
+    },
+    {
+      "assetClass": "real_estate",
+      "issuer": "DELHI_HEALTHCARE_CLINIC",
+      "valueINR": 20000000,
+      "pctOfNetWorth": 13.33
+    }
+  ],
+  "exposure": {
+    "bySector": {
+      "Healthcare & Pharma": 71.67,
+      "Sovereign Fixed Income": 15.0,
+      "Commercial Real Estate": 13.33
+    },
+    "byAssetClass": {
+      "listed_equity": 45.0,
+      "debt_fixed_income": 15.0,
+      "mutual_funds": 10.0,
+      "pms": 16.67,
+      "real_estate": 13.33
+    },
+    "topConcentration": {
+      "issuer": "PHARMA_TECH_LTD",
+      "pct": 45.0
+    }
+  },
+  "flags": {
+    "highConcentration": true,
+    "lockInApplies": false,
+    "taxOptimizationCandidate": true
+  }
+}

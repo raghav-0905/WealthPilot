@@ -98,6 +98,15 @@ class WealthPilotAPIHandler(SimpleHTTPRequestHandler):
                     "netWorthINR": 80000000,
                     "defaultGoal": "De-risk NBFC exposure and diversify globally via RBI LRS window while maintaining wealth compounding.",
                     "traceFile": "docs/trace_examples/scenario_002_trace.json"
+                },
+                {
+                    "id": "scenario_custom",
+                    "clientId": "CLIENT_CUSTOM",
+                    "title": "Vikram Malhotra — Healthcare Founder & Angel",
+                    "persona": "Healthcare Founder | 45% Concentration & Hospital Expansion",
+                    "netWorthINR": 150000000,
+                    "defaultGoal": "Tax-efficient healthcare founder concentration exit; ₹3.5 Cr liquidity needed for hospital expansion.",
+                    "traceFile": "docs/trace_examples/scenario_custom_trace.json"
                 }
             ]
             self._send_json(200, {"scenarios": scenarios})

@@ -3,14 +3,15 @@
  * Client-Facing Advisory & Portfolio Optimization Engine
  * =======================================================
  * Supports live backend API execution (http://localhost:8000)
- * with robust offline verified fallback data for zero-crash stability.
+ * with multi-strategy deep-dive switching (Rank 1, Rank 2, Rank 3),
+ * interactive mandate adjustments, and custom scenario testing.
  */
 
 // Application State
 const state = {
   currentPortfolio: "scenario_001",
   data: null,
-  selectedStrategyId: "S2",
+  selectedStrategyId: null,
   isApproved: false,
   apiAvailable: false
 };
@@ -20,6 +21,7 @@ const els = {
   // Navigation & Switchers
   btnPortfolio1: document.getElementById("btnPortfolio1"),
   btnPortfolio2: document.getElementById("btnPortfolio2"),
+  btnPortfolio3: document.getElementById("btnPortfolio3"),
   btnCustomMandate: document.getElementById("btnCustomMandate"),
   btnExportBriefing: document.getElementById("btnExportBriefing"),
   btnRunAdvisory: document.getElementById("btnRunAdvisory"),
@@ -127,15 +129,20 @@ async function loadPortfolio(portfolioId) {
 function renderPlatform() {
   if (!state.data) return;
 
-  const isClient1 = state.currentPortfolio.includes("001") || state.data.clientId === "CLIENT_001";
+  const isClient1 = state.currentPortfolio === "scenario_001" || state.data.clientId === "CLIENT_001";
+  const isClient2 = state.currentPortfolio === "scenario_002" || state.data.clientId === "CLIENT_002";
+  const isCustom = !isClient1 && !isClient2;
+
   const report = state.data.finalReport || {};
   const ranked = report.rankedOptions || [];
 
+  // Update Navigation Pill Active States
+  els.btnPortfolio1.classList.toggle("active", isClient1);
+  els.btnPortfolio2.classList.toggle("active", isClient2);
+  if (els.btnPortfolio3) els.btnPortfolio3.classList.toggle("active", isCustom);
+
   // 1. Update Mandate Bar & KPIs
   if (isClient1) {
-    els.btnPortfolio1.classList.add("active");
-    els.btnPortfolio2.classList.remove("active");
-
     els.clientName.textContent = "Rajesh Varma";
     els.clientPersona.textContent = "Promoter-Entrepreneur | Tech Sector";
     els.inputTargetLiquidity.value = "₹2,00,00,000";
@@ -150,10 +157,7 @@ function renderPlatform() {
     els.kpiTaxSavings.textContent = "₹12.50 L";
     els.kpiHealthScore.textContent = "89 / 100";
     els.lblAllocNetWorth.textContent = "₹12.00 Cr";
-  } else {
-    els.btnPortfolio1.classList.remove("active");
-    els.btnPortfolio2.classList.add("active");
-
+  } else if (isClient2) {
     els.clientName.textContent = "Ananya Sen";
     els.clientPersona.textContent = "Senior Corporate Executive | NBFC & Global LRS";
     els.inputTargetLiquidity.value = "₹4,00,00,000";
@@ -168,34 +172,32 @@ function renderPlatform() {
     els.kpiTaxSavings.textContent = "₹8.40 L";
     els.kpiHealthScore.textContent = "92 / 100";
     els.lblAllocNetWorth.textContent = "₹8.00 Cr";
+  } else {
+    // Custom Scenario (Vikram Malhotra)
+    els.clientName.textContent = "Vikram Malhotra";
+    els.clientPersona.textContent = "Healthcare Founder & Angel Investor";
+    els.inputTargetLiquidity.value = "₹3,50,00,000";
+    els.selectHorizon.value = "2";
+    els.selectMandate.value = "tax_optimized";
+
+    els.kpiNetWorth.textContent = "₹15.00 Cr";
+    els.kpiTopIssuer.textContent = "45.0%";
+    els.kpiTopIssuerName.textContent = "PHARMA_TECH_LTD (Healthcare)";
+    els.kpiLiquidityGoal.textContent = "₹3.50 Cr";
+    els.kpiHorizon.textContent = "2-Year Hospital Window";
+    els.kpiTaxSavings.textContent = "₹18.20 L";
+    els.kpiHealthScore.textContent = "91 / 100";
+    els.lblAllocNetWorth.textContent = "₹15.00 Cr";
   }
 
   // 2. Render Strategy Cards
-  renderStrategyGrid(ranked, isClient1);
+  renderStrategyGrid(ranked, isClient1, isClient2);
 
   // 3. Default Select Rank #1
-  const defaultStrat = ranked[0]?.id || "S2";
-  selectStrategy(defaultStrat, isClient1);
+  const defaultStrat = ranked[0]?.id || (isClient1 ? "S2" : (isClient2 ? "S1_NBFC_ROTATION" : "S2"));
+  selectStrategy(defaultStrat, isClient1, isClient2);
 
-  // 4. Render Narrative
-  els.explanationText.textContent = report.explanation || 
-    (isClient1 
-      ? "Structured portfolio de-risking staged across FY26 and FY27. Preserves Category-II AIF compounding while establishing an immediate ₹2.0 Cr sovereign liquidity reserve and offsetting ₹12.50 L in capital gains via loss harvesting."
-      : "Rotates mature NBFC financial equity into diversified domestic large-caps and opens global dollar equity compounding via RBI LRS window, maintaining strong capital growth ahead of retirement.");
-
-  // 5. Render Allocation Summary in Overview Tab
-  renderOverviewSummary(isClient1);
-
-  // 6. Render Rebalancing Table
-  renderRebalanceTable(isClient1);
-
-  // 7. Render Tax Section
-  renderTaxSection(isClient1);
-
-  // 8. Render Trade Order Terminal
-  renderTradeTable(isClient1);
-
-  // 9. GSAP Staggered Entrance Animations (antigravity-design-expert)
+  // 4. GSAP Staggered Entrance Animations
   if (window.gsap) {
     window.gsap.from(".kpi-card", {
       y: 12,
@@ -214,8 +216,8 @@ function renderPlatform() {
   }
 }
 
-// Render Strategy Alternatives
-function renderStrategyGrid(strategies, isClient1) {
+// Render Strategy Alternatives (Rank 1, Rank 2, Rank 3)
+function renderStrategyGrid(strategies, isClient1, isClient2) {
   els.strategyGrid.innerHTML = "";
   els.badgeStrategyCount.textContent = `${strategies.length || 3} Compliant Strategies Evaluated`;
 
@@ -232,7 +234,7 @@ function renderStrategyGrid(strategies, isClient1) {
       name: "Balanced Multi-Asset Rotation",
       summary: "Phased equity liquidation routed into Large & Midcap Mutual Funds and sovereign debt, maintaining broad equity beta."
     }
-  } : {
+  } : (isClient2 ? {
     "S1_NBFC_ROTATION": {
       name: "NBFC Rotation & Quality Large-Cap",
       summary: "Reduces non-bank financials exposure from 30% to 12.5%, rotating proceeds into high-dividend large caps and debt."
@@ -245,12 +247,25 @@ function renderStrategyGrid(strategies, isClient1) {
       name: "Core-Satellite Long-Term Compounding",
       summary: "Balanced domestic and international allocation calibrated for high-wealth salaried executive retirement horizon."
     }
-  };
+  } : {
+    "S2": {
+      name: "Staged Healthcare De-risking & Sovereign Anchor",
+      summary: "Staged ₹3.5 Cr liquidation of PHARMA_TECH_LTD over 2 fiscal years avoiding peak surcharge. Fulfills hospital expansion."
+    },
+    "S4": {
+      name: "Core Hospital Capital Preservation Ladder",
+      summary: "Immediate ₹3.5 Cr liquidation allocated to AAA bond ladder and debt funds to lock in capital for expansion milestones."
+    },
+    "S3": {
+      name: "Multi-Asset Healthcare Rotation",
+      summary: "Reduces single-stock healthcare concentration to 25%, rotating remainder into diversified mutual funds and debt."
+    }
+  });
 
   strategies.forEach((strat, idx) => {
     const meta = strategyDescriptions[strat.id] || {
       name: `Strategy ${strat.id}`,
-      summary: strat.rationale || "Balanced wealth strategy."
+      summary: strat.rationale || "Balanced institutional wealth strategy."
     };
 
     const card = document.createElement("div");
@@ -258,12 +273,14 @@ function renderStrategyGrid(strategies, isClient1) {
     card.id = `card_${strat.id}`;
 
     const scorePct = Math.round(strat.totalScore * 100);
+    const rankNum = strat.rank || idx + 1;
+    const isRank1 = rankNum === 1;
 
     card.innerHTML = `
       <div>
         <div class="rank-tag">
-          <span>★</span>
-          <span>RANK #${strat.rank || idx + 1} RECOMMENDED</span>
+          <span>${isRank1 ? '★' : '•'}</span>
+          <span>RANK #${rankNum} ${isRank1 ? 'RECOMMENDED' : 'ALTERNATIVE'}</span>
         </div>
         <div class="strategy-name">${meta.name}</div>
         <div class="strategy-summary">${meta.summary}</div>
@@ -271,31 +288,115 @@ function renderStrategyGrid(strategies, isClient1) {
       <div class="score-row">
         <div>
           <div style="font-size: 11px; font-weight: 700; text-transform: uppercase; color: var(--text-muted);">Institutional Fit</div>
-          <div style="font-size: 11px; color: var(--brand-emerald-text); font-weight: 600;">Compliant & Verified</div>
+          <div style="font-size: 11px; color: ${isRank1 ? 'var(--brand-emerald-text)' : 'var(--text-muted)'}; font-weight: 600;">
+            ${isRank1 ? 'Top Compliant Pick' : 'Alternative Scenario'}
+          </div>
         </div>
         <div class="score-number">${scorePct}%</div>
       </div>
     `;
 
+    // Make clicking Rank 1, Rank 2, and Rank 3 fully interactive!
     card.addEventListener("click", () => {
       document.querySelectorAll(".strategy-card").forEach(c => c.classList.remove("selected"));
       card.classList.add("selected");
-      selectStrategy(strat.id, isClient1);
+      selectStrategy(strat.id, isClient1, isClient2);
     });
 
     els.strategyGrid.appendChild(card);
   });
 }
 
-// Select Active Strategy
-function selectStrategy(strategyId, isClient1) {
+// Deeply Select Strategy & Update All Tables/Tabs Dynamically
+function selectStrategy(strategyId, isClient1, isClient2) {
   state.selectedStrategyId = strategyId;
   const strat = (state.data?.finalReport?.rankedOptions || []).find(s => s.id === strategyId);
   const scorePct = strat ? Math.round(strat.totalScore * 100) : 89;
+  const rankNum = strat?.rank || 1;
 
-  els.selectedStrategyTitle.textContent = `Strategy ${strategyId} (Rank #${strat?.rank || 1} • ${scorePct}% Institutional Suitability)`;
+  els.selectedStrategyTitle.textContent = `Strategy ${strategyId} (Rank #${rankNum} • ${scorePct}% Institutional Suitability)`;
 
-  // Render Performance Criteria Bars
+  // 1. Update Executive Narrative Rationale for Selected Strategy
+  updateStrategyNarrative(strategyId, isClient1, isClient2, rankNum);
+
+  // 2. Update Performance Criteria Bars
+  updateCriteriaBars(strat);
+
+  // 3. Update Overview Allocation Summary
+  renderOverviewSummary(strategyId, isClient1, isClient2);
+
+  // 4. Update Rebalancing Comparison Table
+  renderRebalanceTable(strategyId, isClient1, isClient2);
+
+  // 5. Update Tax Architecture
+  renderTaxSection(strategyId, isClient1, isClient2);
+
+  // 6. Update Execution Terminal Order Schedule
+  renderTradeTable(strategyId, isClient1, isClient2);
+}
+
+// Update Narrative Text when Strategy Changes
+function updateStrategyNarrative(strategyId, isClient1, isClient2, rankNum) {
+  if (isClient1) {
+    if (strategyId === "S2") {
+      els.explanationText.innerHTML = `
+        <strong>Strategy S2 (Rank #1 Recommended):</strong> Proposes a structured ₹2.0 Cr redemption staged equally across FY26 and FY27. 
+        By keeping annual capital gains below the ₹2.0 Cr cliff, Section 112A equity LTCG surcharge is strictly capped at 15% (saving ~₹13.09 L vs single-year sale). 
+        Additionally, realized losses of ₹12.50 L from CLEANTECH_SOL are harvested to offset taxable gains. Proceeds establish an immediate ₹1.0 Cr 7.18% GOI Bond buffer and allocate ₹1.2 Cr into HDFC Large & Midcap Fund while preserving long-term AIF compounding.
+      `;
+    } else if (strategyId === "S1") {
+      els.explanationText.innerHTML = `
+        <strong>Strategy S1 (Rank #2 Alternative):</strong> Executes an accelerated, single-tranche liquidation of ₹2.0 Cr PROMOTER_CO equity immediately. 
+        While this delivers instantaneous cash certainty, concentrating the entire ₹1.80 Cr capital gain into a single assessment year pushes the client's taxable income into the peak 25% surcharge bracket (resulting in ₹53.80 L tax liability). 
+        Furthermore, it does not harvest underperforming equity lots, leading to a lower institutional suitability score of 74%.
+      `;
+    } else {
+      els.explanationText.innerHTML = `
+        <strong>Strategy S3 (Rank #3 Alternative):</strong> Proposes a conservative partial trim of ₹1.25 Cr PROMOTER_CO equity routed into domestic mutual funds and debt. 
+        While this incurs lowest upfront capital gains tax (₹27.40 L), it fails to fully satisfy the client's stated ₹2.0 Cr liquidity target within the 2-year horizon (leaving a ₹75.0 L liquidity deficit). 
+        Ranked #3 with a 68% fit score due to liquidity misalignment.
+      `;
+    }
+  } else if (isClient2) {
+    if (strategyId === "S1_NBFC_ROTATION") {
+      els.explanationText.innerHTML = `
+        <strong>Strategy S1_NBFC_ROTATION (Rank #1 Recommended):</strong> Rotates mature NBFC financial equity (Bajaj Finance & Cholamandalam) from 30% down to 12.5%, locking in high past capital appreciation. 
+        Reinvests ₹60 Lakh globally via the RBI LRS window into dollar-denominated index ETFs, ₹40 Lakh into domestic mutual funds, and ₹20 Lakh into high-grade corporate fixed income.
+      `;
+    } else if (strategyId === "S2_LRS_EXPANSION") {
+      els.explanationText.innerHTML = `
+        <strong>Strategy S2_LRS_EXPANSION (Rank #2 Alternative):</strong> Prioritizes global dollar diversification by utilizing the full $250k annual RBI LRS remittance limit (₹1.36 Cr) into Vanguard USD ETFs. 
+        While providing superior geographic currency hedging against INR depreciation, 20% TCS advance tax on remittances above ₹7 Lakh creates a temporary advance liquidity lockup, ranking it #2 (86% fit).
+      `;
+    } else {
+      els.explanationText.innerHTML = `
+        <strong>Strategy S3_BALANCED_GROWTH (Rank #3 Alternative):</strong> Retains a traditional domestic 60/40 asset allocation with minimal offshore exposure. 
+        Suitable for conservative capital preservation, but underperforms in international diversification for high-wealth executive retirement compounding (78% fit).
+      `;
+    }
+  } else {
+    // Custom Scenario (Vikram Malhotra)
+    if (strategyId === "S2") {
+      els.explanationText.innerHTML = `
+        <strong>Strategy S2 (Rank #1 Recommended):</strong> Staged liquidation of ₹3.50 Cr PHARMA_TECH_LTD stock across FY26 and FY27. 
+        Reduces founder concentration from 45% to 21.7% while maintaining capital gains surcharge at 15%. Directly fulfills the ₹3.5 Cr specialty hospital expansion budget.
+      `;
+    } else if (strategyId === "S4") {
+      els.explanationText.innerHTML = `
+        <strong>Strategy S4 (Rank #2 Alternative):</strong> Immediate liquidation of ₹3.5 Cr into a structured AAA sovereign and corporate bond ladder. 
+        Guarantees exact cash availability for construction milestones but incurs higher single-year tax surcharge.
+      `;
+    } else {
+      els.explanationText.innerHTML = `
+        <strong>Strategy S3 (Rank #3 Alternative):</strong> Partial trim of ₹2.0 Cr into healthcare mutual funds. 
+        Maintains sectoral upside but leaves a ₹1.5 Cr gap towards the hospital expansion requirement.
+      `;
+    }
+  }
+}
+
+// Update Performance Criteria Bars
+function updateCriteriaBars(strat) {
   const crit = strat?.criteria || {
     postTaxReturn: 0.88,
     liquidity: 0.90,
@@ -339,23 +440,83 @@ function selectStrategy(strategyId, isClient1) {
   }
 }
 
-// Render Overview Summary Bars
-function renderOverviewSummary(isClient1) {
+// Render Overview Summary Bars for Active Strategy
+function renderOverviewSummary(strategyId, isClient1, isClient2) {
   els.overviewAllocationSummary.innerHTML = "";
 
-  const allocations = isClient1 ? [
-    { label: "Listed Equity (PROMOTER_CO)", current: "38.0%", target: "21.3%", note: "-₹2.0 Cr De-risked" },
-    { label: "Fixed Income (7.18% GOI Bonds)", current: "12.0%", target: "20.3%", note: "+₹2.0 Cr Liquidity Anchor" },
-    { label: "Mutual Funds (Large & Mid Cap)", current: "10.8%", target: "20.8%", note: "+₹1.2 Cr Reinvested" },
-    { label: "Private Equity & PMS (Category-II AIF)", current: "25.0%", target: "25.0%", note: "Lock-in Preserved" },
-    { label: "Commercial Real Estate", current: "12.5%", target: "12.5%", note: "Core Asset" }
-  ] : [
-    { label: "Financial / NBFC Equity", current: "30.0%", target: "12.5%", note: "-₹1.4 Cr De-risked" },
-    { label: "Global USD Equity (Vanguard ETF via LRS)", current: "8.0%", target: "15.5%", note: "+₹60 Lakh LRS Inflow" },
-    { label: "Domestic Mutual Funds", current: "22.0%", target: "27.0%", note: "+₹40 Lakh Core Compounding" },
-    { label: "High-Yield PMS", current: "25.0%", target: "25.0%", note: "Maintained" },
-    { label: "Fixed Income FDs & Bonds", current: "15.0%", target: "20.0%", note: "+₹40 Lakh Stability Buffer" }
-  ];
+  let allocations = [];
+
+  if (isClient1) {
+    if (strategyId === "S2") {
+      allocations = [
+        { label: "Listed Equity (PROMOTER_CO)", current: "38.0%", target: "21.3%", note: "-₹2.0 Cr Staged (FY26/27)" },
+        { label: "Fixed Income (7.18% GOI Bonds)", current: "12.0%", target: "20.3%", note: "+₹1.0 Cr Liquidity Anchor" },
+        { label: "Mutual Funds (Large & Mid Cap)", current: "10.8%", target: "20.8%", note: "+₹1.2 Cr Reinvested" },
+        { label: "Category-II AIF (Private Equity)", current: "10.0%", target: "10.0%", note: "Mandatory Lock-in Preserved" },
+        { label: "PMS & Real Estate", current: "27.5%", target: "27.5%", note: "Compounding Maintained" }
+      ];
+    } else if (strategyId === "S1") {
+      allocations = [
+        { label: "Listed Equity (PROMOTER_CO)", current: "38.0%", target: "21.3%", note: "-₹2.0 Cr Sold (Single FY Block)" },
+        { label: "Liquid Funds & Cash", current: "0.0%", target: "16.7%", note: "+₹2.0 Cr Liquid Reserve" },
+        { label: "Fixed Income (Bonds)", current: "12.0%", target: "12.0%", note: "Unchanged" },
+        { label: "Mutual Funds & PMS", current: "25.8%", target: "25.8%", note: "Unchanged" },
+        { label: "Category-II AIF & Real Estate", current: "22.5%", target: "22.5%", note: "Maintained" }
+      ];
+    } else {
+      allocations = [
+        { label: "Listed Equity (PROMOTER_CO)", current: "38.0%", target: "27.5%", note: "-₹1.25 Cr Partial Trim" },
+        { label: "Mutual Funds (Large & Mid Cap)", current: "10.8%", target: "25.5%", note: "+₹1.76 Cr Broad Equity Beta" },
+        { label: "Fixed Income & Sovereign Debt", current: "12.0%", target: "18.0%", note: "+₹72.0 L Added" },
+        { label: "Category-II AIF", current: "10.0%", target: "10.0%", note: "Locked" },
+        { label: "PMS & Real Estate", current: "27.5%", target: "27.5%", note: "Maintained" }
+      ];
+    }
+  } else if (isClient2) {
+    if (strategyId === "S1_NBFC_ROTATION") {
+      allocations = [
+        { label: "Financial / NBFC Equity", current: "30.0%", target: "12.5%", note: "-₹1.4 Cr De-risked" },
+        { label: "Global USD Equity (Vanguard ETF via LRS)", current: "8.0%", target: "15.5%", note: "+₹60 Lakh LRS Inflow" },
+        { label: "Domestic Mutual Funds", current: "22.0%", target: "27.0%", note: "+₹40 Lakh Core Compounding" },
+        { label: "Fixed Income FDs & Bonds", current: "15.0%", target: "20.0%", note: "+₹40 Lakh Stability Buffer" },
+        { label: "High-Yield PMS", current: "25.0%", target: "25.0%", note: "Maintained" }
+      ];
+    } else if (strategyId === "S2_LRS_EXPANSION") {
+      allocations = [
+        { label: "Global USD Equity (Vanguard ETF)", current: "8.0%", target: "25.0%", note: "+₹1.36 Cr (Max $250k LRS)" },
+        { label: "Financial / NBFC Equity", current: "30.0%", target: "17.5%", note: "-₹1.0 Cr Trimmed" },
+        { label: "Domestic Mutual Funds", current: "22.0%", target: "20.0%", note: "-₹16 Lakh Trim" },
+        { label: "Fixed Income FDs", current: "15.0%", target: "12.5%", note: "Buffer Maintained" },
+        { label: "High-Yield PMS", current: "25.0%", target: "25.0%", note: "Maintained" }
+      ];
+    } else {
+      allocations = [
+        { label: "Domestic Mutual Funds", current: "22.0%", target: "32.5%", note: "+₹84 Lakh Core Reinvestment" },
+        { label: "Financial / NBFC Equity", current: "30.0%", target: "22.5%", note: "-₹60 Lakh Trim" },
+        { label: "Fixed Income FDs & Bonds", current: "15.0%", target: "20.0%", note: "+₹40 Lakh Stability" },
+        { label: "Global USD Equity (ETF)", current: "8.0%", target: "8.0%", note: "Hold (₹64 L)" },
+        { label: "High-Yield PMS", current: "25.0%", target: "25.0%", note: "Maintained" }
+      ];
+    }
+  } else {
+    // Custom Scenario (Vikram Malhotra)
+    if (strategyId === "S2") {
+      allocations = [
+        { label: "Healthcare Equity (PHARMA_TECH_LTD)", current: "45.0%", target: "21.7%", note: "-₹3.5 Cr Staged De-risking" },
+        { label: "Sovereign Bonds & Liquid Reserves", current: "15.0%", target: "38.3%", note: "+₹3.5 Cr Hospital Expansion Fund" },
+        { label: "Nippon Pharma Mutual Fund", current: "10.0%", target: "10.0%", note: "Hold" },
+        { label: "Healthcare Alpha PMS", current: "16.7%", target: "16.7%", note: "Compounding Maintained" },
+        { label: "Commercial Clinic Real Estate", current: "13.3%", target: "13.3%", note: "Core Physical Asset" }
+      ];
+    } else {
+      allocations = [
+        { label: "Healthcare Equity (PHARMA_TECH_LTD)", current: "45.0%", target: "28.0%", note: "-₹2.5 Cr Liquidation" },
+        { label: "Sovereign Fixed Income Ladder", current: "15.0%", target: "32.0%", note: "+₹2.5 Cr Capital Preservation" },
+        { label: "Diversified Mutual Funds", current: "10.0%", target: "15.0%", note: "+₹75 Lakh Diversified" },
+        { label: "Healthcare Alpha PMS & Clinic", current: "30.0%", target: "25.0%", note: "Realigned" }
+      ];
+    }
+  }
 
   allocations.forEach(item => {
     const row = document.createElement("div");
@@ -382,26 +543,82 @@ function renderOverviewSummary(isClient1) {
   });
 }
 
-// Render Rebalancing Comparison Table
-function renderRebalanceTable(isClient1) {
+// Render Rebalancing Comparison Table for Active Strategy
+function renderRebalanceTable(strategyId, isClient1, isClient2) {
   els.rebalanceTableBody.innerHTML = "";
 
-  const rows = isClient1 ? [
-    { asset: "PROMOTER_CO (Listed IT)", curPct: "38.0%", curVal: "₹4.56 Cr", tgtPct: "21.3%", tgtVal: "₹2.56 Cr", change: "-₹2.00 Cr", type: "neg" },
-    { asset: "CLEANTECH_SOL (Listed Equities)", curPct: "1.7%", curVal: "₹20.0 L", tgtPct: "0.0%", tgtVal: "₹0.00", change: "-₹20.0 L (Harvest)", type: "neg" },
-    { asset: "GOI 7.18% 2033 Sovereign Bonds", curPct: "12.0%", curVal: "₹1.44 Cr", tgtPct: "20.3%", tgtVal: "₹2.44 Cr", change: "+₹1.00 Cr", type: "pos" },
-    { asset: "HDFC Large & Midcap Fund", curPct: "10.8%", curVal: "₹1.30 Cr", tgtPct: "20.8%", tgtVal: "₹2.50 Cr", change: "+₹1.20 Cr", type: "pos" },
-    { asset: "Alpha Opportunities PMS", curPct: "15.0%", curVal: "₹1.80 Cr", tgtPct: "15.0%", tgtVal: "₹1.80 Cr", change: "Hold (₹0)", type: "neutral" },
-    { asset: "Stellar Growth AIF (Cat-II)", curPct: "10.0%", curVal: "₹1.20 Cr", tgtPct: "10.0%", tgtVal: "₹1.20 Cr", change: "Hold (Locked)", type: "neutral" },
-    { asset: "Bangalore Commercial Unit", curPct: "12.5%", curVal: "₹1.50 Cr", tgtPct: "12.5%", tgtVal: "₹1.50 Cr", change: "Hold (Real Estate)", type: "neutral" }
-  ] : [
-    { asset: "Bajaj Finance (NBFC)", curPct: "20.0%", curVal: "₹1.60 Cr", tgtPct: "10.0%", tgtVal: "₹80.0 L", change: "-₹80.0 L", type: "neg" },
-    { asset: "Cholamandalam Inv & Fin", curPct: "10.0%", curVal: "₹80.0 L", tgtPct: "5.0%", tgtVal: "₹40.0 L", change: "-₹40.0 L", type: "neg" },
-    { asset: "Vanguard Total World ETF (USD)", curPct: "8.0%", curVal: "₹64.0 L", tgtPct: "15.5%", tgtVal: "₹1.24 Cr", change: "+₹60.0 L (LRS)", type: "pos" },
-    { asset: "Mirae Asset Large & Midcap", curPct: "22.0%", curVal: "₹1.76 Cr", tgtPct: "27.0%", tgtVal: "₹2.16 Cr", change: "+₹40.0 L", type: "pos" },
-    { asset: "ASK Growth PMS", curPct: "25.0%", curVal: "₹2.00 Cr", tgtPct: "25.0%", tgtVal: "₹2.00 Cr", change: "Hold", type: "neutral" },
-    { asset: "Corporate FD & Sovereign Debt", curPct: "15.0%", curVal: "₹1.20 Cr", tgtPct: "17.5%", tgtVal: "₹1.40 Cr", change: "+₹20.0 L", type: "pos" }
-  ];
+  let rows = [];
+
+  if (isClient1) {
+    if (strategyId === "S2") {
+      rows = [
+        { asset: "PROMOTER_CO (Listed IT)", curPct: "38.0%", curVal: "₹4.56 Cr", tgtPct: "21.3%", tgtVal: "₹2.56 Cr", change: "-₹2.00 Cr", type: "neg" },
+        { asset: "CLEANTECH_SOL (Equities)", curPct: "1.7%", curVal: "₹20.0 L", tgtPct: "0.0%", tgtVal: "₹0.00", change: "-₹20.0 L (Harvest)", type: "neg" },
+        { asset: "GOI 7.18% 2033 Sovereign Bonds", curPct: "12.0%", curVal: "₹1.44 Cr", tgtPct: "20.3%", tgtVal: "₹2.44 Cr", change: "+₹1.00 Cr", type: "pos" },
+        { asset: "HDFC Large & Midcap Fund", curPct: "10.8%", curVal: "₹1.30 Cr", tgtPct: "20.8%", tgtVal: "₹2.50 Cr", change: "+₹1.20 Cr", type: "pos" },
+        { asset: "Alpha Opportunities PMS", curPct: "15.0%", curVal: "₹1.80 Cr", tgtPct: "15.0%", tgtVal: "₹1.80 Cr", change: "Hold (₹0)", type: "neutral" },
+        { asset: "Stellar Growth AIF (Cat-II)", curPct: "10.0%", curVal: "₹1.20 Cr", tgtPct: "10.0%", tgtVal: "₹1.20 Cr", change: "Hold (Locked)", type: "neutral" },
+        { asset: "Bangalore Commercial Unit", curPct: "12.5%", curVal: "₹1.50 Cr", tgtPct: "12.5%", tgtVal: "₹1.50 Cr", change: "Hold (Real Estate)", type: "neutral" }
+      ];
+    } else if (strategyId === "S1") {
+      rows = [
+        { asset: "PROMOTER_CO (Listed IT)", curPct: "38.0%", curVal: "₹4.56 Cr", tgtPct: "21.3%", tgtVal: "₹2.56 Cr", change: "-₹2.00 Cr (Block)", type: "neg" },
+        { asset: "CLEANTECH_SOL (Equities)", curPct: "1.7%", curVal: "₹20.0 L", tgtPct: "1.7%", tgtVal: "₹20.0 L", change: "Unharvested (₹0)", type: "neutral" },
+        { asset: "HDFC Liquid Fund (Cash Reserve)", curPct: "0.0%", curVal: "₹0.00", tgtPct: "16.7%", tgtVal: "₹2.00 Cr", change: "+₹2.00 Cr", type: "pos" },
+        { asset: "GOI 7.18% 2033 Sovereign Bonds", curPct: "12.0%", curVal: "₹1.44 Cr", tgtPct: "12.0%", tgtVal: "₹1.44 Cr", change: "Hold", type: "neutral" },
+        { asset: "HDFC Large & Midcap Fund", curPct: "10.8%", curVal: "₹1.30 Cr", tgtPct: "10.8%", tgtVal: "₹1.30 Cr", change: "Hold", type: "neutral" },
+        { asset: "Alpha Opportunities PMS", curPct: "15.0%", curVal: "₹1.80 Cr", tgtPct: "15.0%", tgtVal: "₹1.80 Cr", change: "Hold", type: "neutral" },
+        { asset: "Stellar Growth AIF & Real Estate", curPct: "22.5%", curVal: "₹2.70 Cr", tgtPct: "22.5%", tgtVal: "₹2.70 Cr", change: "Hold", type: "neutral" }
+      ];
+    } else {
+      rows = [
+        { asset: "PROMOTER_CO (Listed IT)", curPct: "38.0%", curVal: "₹4.56 Cr", tgtPct: "27.5%", tgtVal: "₹3.31 Cr", change: "-₹1.25 Cr", type: "neg" },
+        { asset: "CLEANTECH_SOL (Equities)", curPct: "1.7%", curVal: "₹20.0 L", tgtPct: "1.7%", tgtVal: "₹20.0 L", change: "Hold", type: "neutral" },
+        { asset: "HDFC Large & Midcap Fund", curPct: "10.8%", curVal: "₹1.30 Cr", tgtPct: "25.5%", tgtVal: "₹3.06 Cr", change: "+₹1.76 Cr", type: "pos" },
+        { asset: "GOI 7.18% 2033 Sovereign Bonds", curPct: "12.0%", curVal: "₹1.44 Cr", tgtPct: "18.0%", tgtVal: "₹2.16 Cr", change: "+₹72.0 L", type: "pos" },
+        { asset: "Alpha Opportunities PMS", curPct: "15.0%", curVal: "₹1.80 Cr", tgtPct: "15.0%", tgtVal: "₹1.80 Cr", change: "Hold", type: "neutral" },
+        { asset: "Stellar Growth AIF & Real Estate", curPct: "22.5%", curVal: "₹2.70 Cr", tgtPct: "22.5%", tgtVal: "₹2.70 Cr", change: "Hold", type: "neutral" }
+      ];
+    }
+  } else if (isClient2) {
+    if (strategyId === "S1_NBFC_ROTATION") {
+      rows = [
+        { asset: "Bajaj Finance (NBFC)", curPct: "20.0%", curVal: "₹1.60 Cr", tgtPct: "10.0%", tgtVal: "₹80.0 L", change: "-₹80.0 L", type: "neg" },
+        { asset: "Cholamandalam Inv & Fin", curPct: "10.0%", curVal: "₹80.0 L", tgtPct: "5.0%", tgtVal: "₹40.0 L", change: "-₹40.0 L", type: "neg" },
+        { asset: "Vanguard Total World ETF (USD)", curPct: "8.0%", curVal: "₹64.0 L", tgtPct: "15.5%", tgtVal: "₹1.24 Cr", change: "+₹60.0 L (LRS)", type: "pos" },
+        { asset: "Mirae Asset Large & Midcap", curPct: "22.0%", curVal: "₹1.76 Cr", tgtPct: "27.0%", tgtVal: "₹2.16 Cr", change: "+₹40.0 L", type: "pos" },
+        { asset: "ASK Growth PMS", curPct: "25.0%", curVal: "₹2.00 Cr", tgtPct: "25.0%", tgtVal: "₹2.00 Cr", change: "Hold", type: "neutral" },
+        { asset: "Corporate FD & Sovereign Debt", curPct: "15.0%", curVal: "₹1.20 Cr", tgtPct: "17.5%", tgtVal: "₹1.40 Cr", change: "+₹20.0 L", type: "pos" }
+      ];
+    } else if (strategyId === "S2_LRS_EXPANSION") {
+      rows = [
+        { asset: "Vanguard Total World ETF (USD)", curPct: "8.0%", curVal: "₹64.0 L", tgtPct: "25.0%", tgtVal: "₹2.00 Cr", change: "+₹1.36 Cr (Max LRS)", type: "pos" },
+        { asset: "Bajaj Finance (NBFC)", curPct: "20.0%", curVal: "₹1.60 Cr", tgtPct: "12.5%", tgtVal: "₹1.00 Cr", change: "-₹60.0 L", type: "neg" },
+        { asset: "Cholamandalam Inv & Fin", curPct: "10.0%", curVal: "₹80.0 L", tgtPct: "5.0%", tgtVal: "₹40.0 L", change: "-₹40.0 L", type: "neg" },
+        { asset: "Mirae Asset Large & Midcap", curPct: "22.0%", curVal: "₹1.76 Cr", tgtPct: "20.0%", tgtVal: "₹1.60 Cr", change: "-₹16.0 L", type: "neg" },
+        { asset: "ASK Growth PMS", curPct: "25.0%", curVal: "₹2.00 Cr", tgtPct: "25.0%", tgtVal: "₹2.00 Cr", change: "Hold", type: "neutral" },
+        { asset: "Corporate FD & Debt", curPct: "15.0%", curVal: "₹1.20 Cr", tgtPct: "12.5%", tgtVal: "₹1.00 Cr", change: "-₹20.0 L", type: "neg" }
+      ];
+    } else {
+      rows = [
+        { asset: "Mirae Asset Large & Midcap", curPct: "22.0%", curVal: "₹1.76 Cr", tgtPct: "32.5%", tgtVal: "₹2.60 Cr", change: "+₹84.0 L", type: "pos" },
+        { asset: "Bajaj Finance (NBFC)", curPct: "20.0%", curVal: "₹1.60 Cr", tgtPct: "15.0%", tgtVal: "₹1.20 Cr", change: "-₹40.0 L", type: "neg" },
+        { asset: "Cholamandalam Inv & Fin", curPct: "10.0%", curVal: "₹80.0 L", tgtPct: "7.5%", tgtVal: "₹60.0 L", change: "-₹20.0 L", type: "neg" },
+        { asset: "Corporate FD & Sovereign Debt", curPct: "15.0%", curVal: "₹1.20 Cr", tgtPct: "20.0%", tgtVal: "₹1.60 Cr", change: "+₹40.0 L", type: "pos" },
+        { asset: "Vanguard Total World ETF (USD)", curPct: "8.0%", curVal: "₹64.0 L", tgtPct: "8.0%", tgtVal: "₹64.0 L", change: "Hold", type: "neutral" },
+        { asset: "ASK Growth PMS", curPct: "25.0%", curVal: "₹2.00 Cr", tgtPct: "25.0%", tgtVal: "₹2.00 Cr", change: "Hold", type: "neutral" }
+      ];
+    }
+  } else {
+    // Custom Scenario (Vikram Malhotra • ₹15 Cr)
+    rows = [
+      { asset: "PHARMA_TECH_LTD (Healthcare)", curPct: "45.0%", curVal: "₹6.75 Cr", tgtPct: "21.7%", tgtVal: "₹3.25 Cr", change: "-₹3.50 Cr", type: "neg" },
+      { asset: "GOI 7.18% 2033 Sovereign Bonds", curPct: "15.0%", curVal: "₹2.25 Cr", tgtPct: "38.3%", tgtVal: "₹5.75 Cr", change: "+₹3.50 Cr (Expansion Buffer)", type: "pos" },
+      { asset: "Nippon India Pharma Fund", curPct: "10.0%", curVal: "₹1.50 Cr", tgtPct: "10.0%", tgtVal: "₹1.50 Cr", change: "Hold", type: "neutral" },
+      { asset: "Healthcare Alpha PMS", curPct: "16.7%", curVal: "₹2.50 Cr", tgtPct: "16.7%", tgtVal: "₹2.50 Cr", change: "Hold", type: "neutral" },
+      { asset: "Delhi Healthcare Clinic Unit", curPct: "13.3%", curVal: "₹2.00 Cr", tgtPct: "13.3%", tgtVal: "₹2.00 Cr", change: "Hold (Clinic Real Estate)", type: "neutral" }
+    ];
+  }
 
   rows.forEach(r => {
     const tr = document.createElement("tr");
@@ -419,23 +636,53 @@ function renderRebalanceTable(isClient1) {
   });
 }
 
-// Render Tax Architecture Section
-function renderTaxSection(isClient1) {
+// Render Tax Architecture Section for Active Strategy
+function renderTaxSection(strategyId, isClient1, isClient2) {
   if (isClient1) {
-    els.taxEstimatedAmount.textContent = "₹40.71 L";
-    els.taxLossHarvested.textContent = "₹12.50 L";
-    els.taxNotes.textContent = 
-      "Section 112A equity LTCG surcharge is statutorily capped at 15%. Liquidations are staged into FY26 and FY27 to prevent taxable income from breaching the ₹2 Cr threshold, avoiding the 25% surcharge rate.";
+    if (strategyId === "S2") {
+      els.taxEstimatedAmount.textContent = "₹40.71 L";
+      els.taxLossHarvested.textContent = "₹12.50 L";
+      els.taxNotes.textContent = 
+        "Section 112A equity LTCG surcharge is statutorily capped at 15%. Liquidations are staged into FY26 and FY27 to prevent taxable income from breaching the ₹2 Cr threshold, avoiding the 25% surcharge rate.";
+    } else if (strategyId === "S1") {
+      els.taxEstimatedAmount.textContent = "₹53.80 L";
+      els.taxLossHarvested.textContent = "₹0.00 L";
+      els.taxNotes.textContent = 
+        "Full single-year block sale triggers upper 25% surcharge bracket under Indian tax laws because total capital gains exceed ₹2.0 Cr in a single assessment year. Loss harvesting opportunities remain unutilized (+₹13.09 L excess tax drag).";
+    } else {
+      els.taxEstimatedAmount.textContent = "₹27.40 L";
+      els.taxLossHarvested.textContent = "₹0.00 L";
+      els.taxNotes.textContent = 
+        "Lower gross LTCG due to smaller liquidation size (₹1.25 Cr), but leaves a ₹75.0 L liquidity deficit towards the stated ₹2.0 Cr target.";
+    }
+  } else if (isClient2) {
+    if (strategyId === "S1_NBFC_ROTATION") {
+      els.taxEstimatedAmount.textContent = "₹17.56 L";
+      els.taxLossHarvested.textContent = "₹0.00 L";
+      els.taxNotes.textContent = 
+        "Compliant with standard LTCG provisions. Offshore remittance of ₹60 Lakh utilizes the RBI LRS window with 20% TCS on amounts exceeding ₹7 Lakh, fully creditable against annual advance tax.";
+    } else if (strategyId === "S2_LRS_EXPANSION") {
+      els.taxEstimatedAmount.textContent = "₹19.20 L";
+      els.taxLossHarvested.textContent = "₹0.00 L";
+      els.taxNotes.textContent = 
+        "Full $250k LRS quota utilization incurs 20% TCS on ₹1.29 Cr net overseas remittances (₹25.8 L TCS collected). Requires advance tax set-off documentation.";
+    } else {
+      els.taxEstimatedAmount.textContent = "₹14.80 L";
+      els.taxLossHarvested.textContent = "₹0.00 L";
+      els.taxNotes.textContent = 
+        "Standard domestic LTCG rates apply without offshore TCS complications.";
+    }
   } else {
-    els.taxEstimatedAmount.textContent = "₹17.56 L";
+    // Custom Scenario (Vikram Malhotra)
+    els.taxEstimatedAmount.textContent = "₹58.60 L";
     els.taxLossHarvested.textContent = "₹0.00 L";
     els.taxNotes.textContent = 
-      "Compliant with standard LTCG provisions. Offshore remittance of ₹60 Lakh utilizes the RBI LRS window with 20% TCS on amounts exceeding ₹7 Lakh, fully creditable against annual advance tax.";
+      "Staged healthcare equity liquidation capped at 15% equity surcharge under Section 112A. Realized proceeds immediately channeled to hospital expansion buffer.";
   }
 }
 
-// Render Trade Orders in Execution Tab
-function renderTradeTable(isClient1) {
+// Render Trade Orders in Execution Tab for Active Strategy
+function renderTradeTable(strategyId, isClient1, isClient2) {
   els.tradeTableBody.innerHTML = "";
 
   if (!state.isApproved) {
@@ -443,25 +690,64 @@ function renderTradeTable(isClient1) {
       <tr>
         <td colspan="6" style="text-align: center; color: var(--text-muted); padding: 32px 16px;">
           <div style="font-size: 14px; font-weight: 600; color: var(--text-primary); margin-bottom: 4px;">Institutional Authorization Required</div>
-          Click <strong>'Authorize & Execute Rebalance'</strong> to dispatch structured orders to designated custodian brokerages.
+          Click <strong>'Authorize & Execute Rebalance'</strong> to dispatch structured orders for <strong>Strategy ${strategyId}</strong> to designated custodian brokerages.
         </td>
       </tr>
     `;
     return;
   }
 
-  const orders = isClient1 ? [
-    { ref: "ORD-99101", type: "SELL", asset: "PROMOTER_CO", amount: "₹20,000,000", tranche: "Tranche 1 (Immediate)", status: "COMPLETED" },
-    { ref: "ORD-99102", type: "SELL", asset: "CLEANTECH_SOL", amount: "₹2,000,000", tranche: "Tax-Loss Offset", status: "COMPLETED" },
-    { ref: "ORD-99103", type: "BUY", asset: "GOI_7.18_BONDS", amount: "₹10,000,000", tranche: "Tranche 1 (Liquidity)", status: "COMPLETED" },
-    { ref: "ORD-99104", type: "BUY", asset: "HDFC_LARGE_CAP", amount: "₹12,000,000", tranche: "Tranche 2 (Core Equity)", status: "COMPLETED" }
-  ] : [
-    { ref: "ORD-88201", type: "SELL", asset: "BAJAJ_FINANCE", amount: "₹8,000,000", tranche: "Tranche 1 (NBFC Exit)", status: "COMPLETED" },
-    { ref: "ORD-88202", type: "SELL", asset: "CHOLAMANDALAM", amount: "₹4,000,000", tranche: "Tranche 1 (NBFC Exit)", status: "COMPLETED" },
-    { ref: "ORD-88203", type: "BUY", asset: "VANGUARD_USD_ETF", amount: "₹6,000,000", tranche: "LRS Remittance Tranche", status: "COMPLETED" },
-    { ref: "ORD-88204", type: "BUY", asset: "MIRAE_ASSET_FUND", amount: "₹4,000,000", tranche: "Core Compounding", status: "COMPLETED" },
-    { ref: "ORD-88205", type: "BUY", asset: "CORPORATE_FD_HDFC", amount: "₹2,000,000", tranche: "Reserve Anchor", status: "COMPLETED" }
-  ];
+  let orders = [];
+
+  if (isClient1) {
+    if (strategyId === "S2") {
+      orders = [
+        { ref: "ORD-99101", type: "SELL", asset: "PROMOTER_CO", amount: "₹20,000,000", tranche: "Tranche 1 (Immediate)", status: "COMPLETED" },
+        { ref: "ORD-99102", type: "SELL", asset: "CLEANTECH_SOL", amount: "₹2,000,000", tranche: "Tax-Loss Offset", status: "COMPLETED" },
+        { ref: "ORD-99103", type: "BUY", asset: "GOI_7.18_BONDS", amount: "₹10,000,000", tranche: "Tranche 1 (Liquidity)", status: "COMPLETED" },
+        { ref: "ORD-99104", type: "BUY", asset: "HDFC_LARGE_CAP", amount: "₹12,000,000", tranche: "Tranche 2 (Core Equity)", status: "COMPLETED" }
+      ];
+    } else if (strategyId === "S1") {
+      orders = [
+        { ref: "ORD-99111", type: "SELL", asset: "PROMOTER_CO", amount: "₹20,000,000", tranche: "Single Block Liquidation", status: "COMPLETED" },
+        { ref: "ORD-99112", type: "BUY", asset: "HDFC_LIQUID_FUND", amount: "₹20,000,000", tranche: "Cash Reserve Anchor", status: "COMPLETED" }
+      ];
+    } else {
+      orders = [
+        { ref: "ORD-99121", type: "SELL", asset: "PROMOTER_CO", amount: "₹12,500,000", tranche: "Tranche 1 Trim", status: "COMPLETED" },
+        { ref: "ORD-99122", type: "BUY", asset: "HDFC_LARGE_AND_MIDCAP", amount: "₹7,500,000", tranche: "Equity Compounding", status: "COMPLETED" },
+        { ref: "ORD-99123", type: "BUY", asset: "GOI_7.18_BONDS", amount: "₹5,000,000", tranche: "Sovereign Debt", status: "COMPLETED" }
+      ];
+    }
+  } else if (isClient2) {
+    if (strategyId === "S1_NBFC_ROTATION") {
+      orders = [
+        { ref: "ORD-88201", type: "SELL", asset: "BAJAJ_FINANCE", amount: "₹8,000,000", tranche: "Tranche 1 (NBFC Exit)", status: "COMPLETED" },
+        { ref: "ORD-88202", type: "SELL", asset: "CHOLAMANDALAM", amount: "₹4,000,000", tranche: "Tranche 1 (NBFC Exit)", status: "COMPLETED" },
+        { ref: "ORD-88203", type: "BUY", asset: "VANGUARD_USD_ETF", amount: "₹6,000,000", tranche: "LRS Remittance Tranche", status: "COMPLETED" },
+        { ref: "ORD-88204", type: "BUY", asset: "MIRAE_ASSET_FUND", amount: "₹4,000,000", tranche: "Core Compounding", status: "COMPLETED" },
+        { ref: "ORD-88205", type: "BUY", asset: "CORPORATE_FD_HDFC", amount: "₹2,000,000", tranche: "Reserve Anchor", status: "COMPLETED" }
+      ];
+    } else if (strategyId === "S2_LRS_EXPANSION") {
+      orders = [
+        { ref: "ORD-88211", type: "SELL", asset: "BAJAJ_FINANCE", amount: "₹6,000,000", tranche: "Tranche 1", status: "COMPLETED" },
+        { ref: "ORD-88212", type: "SELL", asset: "CHOLAMANDALAM", amount: "₹4,000,000", tranche: "Tranche 1", status: "COMPLETED" },
+        { ref: "ORD-88213", type: "BUY", asset: "VANGUARD_USD_ETF", amount: "₹13,600,000", tranche: "Max $250k LRS Quota", status: "COMPLETED" }
+      ];
+    } else {
+      orders = [
+        { ref: "ORD-88221", type: "SELL", asset: "BAJAJ_FINANCE", amount: "₹4,000,000", tranche: "Domestic Rebalance", status: "COMPLETED" },
+        { ref: "ORD-88222", type: "SELL", asset: "CHOLAMANDALAM", amount: "₹2,000,000", tranche: "Domestic Rebalance", status: "COMPLETED" },
+        { ref: "ORD-88223", type: "BUY", asset: "MIRAE_ASSET_FUND", amount: "₹6,000,000", tranche: "Core Equity", status: "COMPLETED" }
+      ];
+    }
+  } else {
+    // Custom Scenario (Vikram Malhotra)
+    orders = [
+      { ref: "ORD-77101", type: "SELL", asset: "PHARMA_TECH_LTD", amount: "₹35,000,000", tranche: "Staged Founder Tranche", status: "COMPLETED" },
+      { ref: "ORD-77102", type: "BUY", asset: "GOI_7.18_BONDS", amount: "₹35,000,000", tranche: "Hospital Expansion Buffer", status: "COMPLETED" }
+    ];
+  }
 
   orders.forEach(o => {
     const tr = document.createElement("tr");
@@ -503,16 +789,20 @@ els.tabButtons.forEach(btn => {
 // Portfolio Account Switching
 els.btnPortfolio1.addEventListener("click", () => loadPortfolio("scenario_001"));
 els.btnPortfolio2.addEventListener("click", () => loadPortfolio("scenario_002"));
+if (els.btnPortfolio3) {
+  els.btnPortfolio3.addEventListener("click", () => loadPortfolio("scenario_custom"));
+}
 
 // Mandate Rebalance Button
 els.btnUpdateMandate.addEventListener("click", async () => {
   els.btnUpdateMandate.disabled = true;
-  els.btnUpdateMandate.innerHTML = "<span>Rebalancing Portfolio...</span>";
+  els.btnUpdateMandate.innerHTML = "<span>Optimizing Multi-Agent Strategy...</span>";
 
   if (state.apiAvailable) {
     try {
-      const clientId = state.currentPortfolio.includes("001") ? "CLIENT_001" : "CLIENT_002";
-      const goal = `Liquidity need ${els.inputTargetLiquidity.value} in ${els.selectHorizon.value} years under ${els.selectMandate.value} mandate.`;
+      const clientId = state.currentPortfolio === "scenario_001" ? "CLIENT_001" 
+        : (state.currentPortfolio === "scenario_002" ? "CLIENT_002" : "CLIENT_CUSTOM");
+      const goal = `Target liquidity ${els.inputTargetLiquidity.value} over ${els.selectHorizon.value} years under ${els.selectMandate.value} mandate.`;
       
       const res = await fetch("/api/run", {
         method: "POST",
@@ -546,7 +836,8 @@ els.btnToggleApproval.addEventListener("click", async () => {
 
     if (state.apiAvailable) {
       try {
-        const clientId = state.currentPortfolio.includes("001") ? "CLIENT_001" : "CLIENT_002";
+        const clientId = state.currentPortfolio === "scenario_001" ? "CLIENT_001" 
+          : (state.currentPortfolio === "scenario_002" ? "CLIENT_002" : "CLIENT_CUSTOM");
         await fetch("/api/execute", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -560,8 +851,9 @@ els.btnToggleApproval.addEventListener("click", async () => {
     resetApprovalButton();
   }
 
-  const isClient1 = state.currentPortfolio.includes("001");
-  renderTradeTable(isClient1);
+  const isClient1 = state.currentPortfolio === "scenario_001";
+  const isClient2 = state.currentPortfolio === "scenario_002";
+  renderTradeTable(state.selectedStrategyId, isClient1, isClient2);
 });
 
 // Custom Mandate Modal
@@ -579,7 +871,35 @@ els.btnCancelModal.addEventListener("click", () => {
 
 els.btnSubmitModal.addEventListener("click", async () => {
   const selectedClient = els.modalClientSelect.value;
-  const portfolioId = selectedClient === "CLIENT_001" ? "scenario_001" : "scenario_002";
+  const portfolioId = selectedClient === "CLIENT_001" ? "scenario_001" 
+    : (selectedClient === "CLIENT_002" ? "scenario_002" : "scenario_custom");
+
+  els.btnSubmitModal.disabled = true;
+  els.btnSubmitModal.innerHTML = "<span>Running Multi-Agent Optimization...</span>";
+
+  if (state.apiAvailable) {
+    try {
+      const goal = els.modalMandateGoal.value || `Liquidity need ${els.modalLiquidityInput.value} in ${els.modalHorizonSelect.value} years.`;
+      const res = await fetch("/api/run", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ clientId: selectedClient, goal, maxRevisionRounds: 3 })
+      });
+
+      if (res.ok) {
+        state.data = await res.json();
+        state.currentPortfolio = portfolioId;
+        renderPlatform();
+        els.customMandateModal.classList.remove("open");
+        return;
+      }
+    } catch (e) {
+      console.warn("API run failed, loading static snapshot", e);
+    } finally {
+      els.btnSubmitModal.disabled = false;
+      els.btnSubmitModal.innerHTML = "<span>Run Wealth Optimization</span>";
+    }
+  }
 
   els.customMandateModal.classList.remove("open");
   await loadPortfolio(portfolioId);
@@ -635,7 +955,7 @@ function getInstitutionalSnapshot(portfolioId) {
         ]
       }
     };
-  } else {
+  } else if (portfolioId.includes("002")) {
     return {
       clientId: "CLIENT_002",
       finalReport: {
@@ -659,6 +979,35 @@ function getInstitutionalSnapshot(portfolioId) {
             rank: 3,
             totalScore: 0.78,
             criteria: { postTaxReturn: 0.81, liquidity: 0.80, concentration: 0.75, stress: 0.80, compliance: 0.90 }
+          }
+        ]
+      }
+    };
+  } else {
+    // Custom Scenario (Vikram Malhotra • ₹15 Cr)
+    return {
+      clientId: "CLIENT_CUSTOM",
+      finalReport: {
+        clientId: "CLIENT_CUSTOM",
+        explanation: "Staged healthcare equity liquidation of ₹3.50 Cr across FY26 and FY27. Avoids peak surcharge while providing immediate milestone capital for specialty hospital expansion.",
+        rankedOptions: [
+          {
+            id: "S2",
+            rank: 1,
+            totalScore: 0.90,
+            criteria: { postTaxReturn: 0.90, liquidity: 0.92, concentration: 0.88, stress: 0.85, compliance: 1.00 }
+          },
+          {
+            id: "S4",
+            rank: 2,
+            totalScore: 0.88,
+            criteria: { postTaxReturn: 0.85, liquidity: 0.96, concentration: 0.88, stress: 0.90, compliance: 0.80 }
+          },
+          {
+            id: "S3",
+            rank: 3,
+            totalScore: 0.88,
+            criteria: { postTaxReturn: 0.88, liquidity: 0.80, concentration: 0.82, stress: 0.86, compliance: 0.95 }
           }
         ]
       }

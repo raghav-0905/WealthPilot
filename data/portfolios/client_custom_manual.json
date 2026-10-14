@@ -1,0 +1,15 @@
+{
+  "clientId": "CLIENT_CUSTOM",
+  "manualAssets": [
+    {
+      "assetType": "commercial_real_estate",
+      "identifier": "DELHI_HEALTHCARE_CLINIC",
+      "location": "South Extension, New Delhi",
+      "acquisitionYear": 2020,
+      "costOfAcquisitionINR": 12000000,
+      "estimatedMarketValueINR": 20000000,
+      "annualRentalIncomeINR": 1200000,
+      "liquidityHorizon": "6 to 9 months sale cycle"
+    }
+  ]
+}
