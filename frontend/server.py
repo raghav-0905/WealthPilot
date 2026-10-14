@@ -47,6 +47,12 @@ class WealthPilotAPIHandler(SimpleHTTPRequestHandler):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, directory=str(FRONTEND_DIR), **kwargs)
 
+    def end_headers(self):
+        self.send_header("Cache-Control", "no-cache, no-store, must-revalidate")
+        self.send_header("Pragma", "no-cache")
+        self.send_header("Expires", "0")
+        super().end_headers()
+
     def _send_json(self, status_code: int, data: dict):
         response_bytes = json.dumps(data, indent=2).encode("utf-8")
         self.send_response(status_code)
@@ -390,6 +396,44 @@ class WealthPilotAPIHandler(SimpleHTTPRequestHandler):
                 })
             except Exception as e:
                 self._send_json(500, {"error": f"Failed to create portfolio: {str(e)}"})
+            return
+
+        elif path == "/api/portfolio/delete":
+            # Remove any portfolio account
+            try:
+                client_id = payload.get("clientId", "").strip().upper()
+                cid_lower = client_id.lower()
+                if not cid_lower:
+                    self._send_json(400, {"error": "Missing clientId parameter"})
+                    return
+
+                deleted_files = []
+                # 1. Remove Client JSON
+                client_path = ROOT_DIR / "data" / "clients" / f"{cid_lower}.json"
+                if client_path.exists():
+                    client_path.unlink()
+                    deleted_files.append(str(client_path.name))
+
+                # 2. Remove associated portfolio data
+                for ext in ["_broker.csv", "_manual.json", "_pms.txt"]:
+                    pfile = ROOT_DIR / "data" / "portfolios" / f"{cid_lower}{ext}"
+                    if pfile.exists():
+                        pfile.unlink()
+                        deleted_files.append(str(pfile.name))
+
+                # 3. Remove trace file if custom
+                tfile = ROOT_DIR / "docs" / "trace_examples" / f"scenario_{cid_lower}_trace.json"
+                if tfile.exists():
+                    tfile.unlink()
+                    deleted_files.append(str(tfile.name))
+
+                self._send_json(200, {
+                    "success": True,
+                    "deletedClientId": client_id,
+                    "deletedFiles": deleted_files
+                })
+            except Exception as e:
+                self._send_json(500, {"error": f"Failed to delete portfolio: {str(e)}"})
             return
 
         elif path == "/api/execute":

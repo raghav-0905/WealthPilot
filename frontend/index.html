@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="WealthPilot — Autonomous Private Wealth Advisory & Portfolio Rebalancing Platform for High-Net-Worth Individuals.">
   <title>WealthPilot — Institutional Wealth Advisory Platform</title>
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="style.css?v=2">
 </head>
 <body>
 
@@ -23,21 +23,40 @@
       </div>
     </div>
 
-    <!-- Active Portfolio Selector -->
-    <nav class="nav-center" id="navScenarioContainer" aria-label="Portfolio Selector">
-      <button class="scenario-pill active" id="btnPortfolio1" data-portfolio="scenario_001">
-        <span class="status-dot"></span>
-        <span>Rajesh Varma (Promoter • ₹12 Cr)</span>
+    <!-- Elegant Account Selector Dropdown (Anti-Clustering Design) -->
+    <div class="account-selector-wrapper" id="accountSelectorWrapper">
+      <button class="account-selector-trigger" id="btnAccountDropdown" type="button" aria-expanded="false" title="Switch Client Portfolio Account">
+        <span class="status-dot" id="activeAccountDot" style="background: var(--brand-emerald);"></span>
+        <div class="account-trigger-info">
+          <span class="account-trigger-name" id="activeAccountName">Rajesh Varma</span>
+          <span class="account-trigger-meta" id="activeAccountMeta">₹12 Cr • Promoter</span>
+        </div>
+        <svg class="dropdown-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="6 9 12 15 18 9"></polyline>
+        </svg>
       </button>
-      <button class="scenario-pill" id="btnPortfolio2" data-portfolio="scenario_002">
-        <span class="status-dot" style="background: var(--brand-cyan);"></span>
-        <span>Ananya Sen (Corporate • ₹8 Cr)</span>
-      </button>
-      <button class="scenario-pill" id="btnPortfolio3" data-portfolio="scenario_custom">
-        <span class="status-dot" style="background: var(--brand-amber);"></span>
-        <span>Vikram Malhotra (Healthcare • ₹15 Cr)</span>
-      </button>
-    </nav>
+
+      <!-- Dropdown Popover Menu -->
+      <div class="account-dropdown-menu" id="accountDropdownMenu">
+        <div class="dropdown-header">
+          <span>Client Portfolio Accounts</span>
+          <span class="dropdown-count-badge" id="dropdownCountBadge">3 Accounts</span>
+        </div>
+        <div class="dropdown-items" id="dropdownItemsContainer">
+          <!-- Dynamically populated accounts with inline remove option -->
+        </div>
+        <div class="dropdown-footer">
+          <button class="btn-dropdown-create" id="btnDropdownCreateNew" type="button">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"></circle>
+              <line x1="12" y1="8" x2="12" y2="16"></line>
+              <line x1="8" y1="12" x2="16" y2="12"></line>
+            </svg>
+            <span>+ Onboard New Portfolio</span>
+          </button>
+        </div>
+      </div>
+    </div>
 
     <!-- Header Actions -->
     <div class="nav-actions">
@@ -78,7 +97,12 @@
     <div class="mandate-inner">
       <div class="mandate-field">
         <span class="mandate-label">Active Wealth Account</span>
-        <div class="mandate-value" id="clientName">Rajesh Varma</div>
+        <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px;">
+          <div class="mandate-value" id="clientName">Rajesh Varma</div>
+          <button class="btn-delete-profile-sm" id="btnDeleteActiveProfile" type="button" title="Remove active portfolio profile" style="background: rgba(239, 68, 68, 0.08); border: 1px solid rgba(239, 68, 68, 0.25); color: #ef4444; border-radius: 6px; padding: 2px 8px; font-size: 11px; font-weight: 700; cursor: pointer; display: none;">
+            ✕ Remove
+          </button>
+        </div>
         <div class="mandate-hint" id="clientPersona">Promoter-Entrepreneur | Tech Sector</div>
       </div>
 
@@ -645,6 +669,6 @@
   </div>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
-  <script src="app.js"></script>
+  <script src="app.js?v=2"></script>
 </body>
 </html>

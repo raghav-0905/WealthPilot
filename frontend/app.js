@@ -18,11 +18,16 @@ const state = {
 
 // DOM References
 const els = {
-  // Navigation & Switchers
-  navScenarioContainer: document.getElementById("navScenarioContainer"),
-  btnPortfolio1: document.getElementById("btnPortfolio1"),
-  btnPortfolio2: document.getElementById("btnPortfolio2"),
-  btnPortfolio3: document.getElementById("btnPortfolio3"),
+  // Navigation & Account Switcher Dropdown
+  accountSelectorWrapper: document.getElementById("accountSelectorWrapper"),
+  btnAccountDropdown: document.getElementById("btnAccountDropdown"),
+  activeAccountDot: document.getElementById("activeAccountDot"),
+  activeAccountName: document.getElementById("activeAccountName"),
+  activeAccountMeta: document.getElementById("activeAccountMeta"),
+  accountDropdownMenu: document.getElementById("accountDropdownMenu"),
+  dropdownCountBadge: document.getElementById("dropdownCountBadge"),
+  dropdownItemsContainer: document.getElementById("dropdownItemsContainer"),
+  btnDropdownCreateNew: document.getElementById("btnDropdownCreateNew"),
   btnOpenNewPortfolio: document.getElementById("btnOpenNewPortfolio"),
   btnCustomMandate: document.getElementById("btnCustomMandate"),
   btnExportBriefing: document.getElementById("btnExportBriefing"),
@@ -31,6 +36,7 @@ const els = {
   // Interactive Mandate Bar
   clientName: document.getElementById("clientName"),
   clientPersona: document.getElementById("clientPersona"),
+  btnDeleteActiveProfile: document.getElementById("btnDeleteActiveProfile"),
   inputTargetLiquidity: document.getElementById("inputTargetLiquidity"),
   selectHorizon: document.getElementById("selectHorizon"),
   selectMandate: document.getElementById("selectMandate"),
@@ -185,13 +191,13 @@ function renderPlatform() {
   const report = state.data.finalReport || {};
   const ranked = report.rankedOptions || [];
 
-  // Update Navigation Pill Active States
-  els.btnPortfolio1.classList.toggle("active", isClient1);
-  els.btnPortfolio2.classList.toggle("active", isClient2);
-  if (els.btnPortfolio3) els.btnPortfolio3.classList.toggle("active", isCustom);
-
   // 1. Update Mandate Bar & KPIs
   if (isClient1) {
+    if (els.activeAccountName) els.activeAccountName.textContent = "Rajesh Varma";
+    if (els.activeAccountMeta) els.activeAccountMeta.textContent = "₹12 Cr • Promoter & Tech";
+    if (els.activeAccountDot) els.activeAccountDot.style.background = "var(--brand-emerald)";
+    if (els.btnDeleteActiveProfile) els.btnDeleteActiveProfile.style.display = "none";
+
     els.clientName.textContent = "Rajesh Varma";
     els.clientPersona.textContent = "Promoter-Entrepreneur | Tech Sector";
     els.inputTargetLiquidity.value = "₹2,00,00,000";
@@ -207,6 +213,11 @@ function renderPlatform() {
     els.kpiHealthScore.textContent = "89 / 100";
     els.lblAllocNetWorth.textContent = "₹12.00 Cr";
   } else if (isClient2) {
+    if (els.activeAccountName) els.activeAccountName.textContent = "Ananya Sen";
+    if (els.activeAccountMeta) els.activeAccountMeta.textContent = "₹8 Cr • Corporate & LRS";
+    if (els.activeAccountDot) els.activeAccountDot.style.background = "var(--brand-cyan)";
+    if (els.btnDeleteActiveProfile) els.btnDeleteActiveProfile.style.display = "none";
+
     els.clientName.textContent = "Ananya Sen";
     els.clientPersona.textContent = "Senior Corporate Executive | NBFC & Global LRS";
     els.inputTargetLiquidity.value = "₹4,00,00,000";
@@ -234,6 +245,15 @@ function renderPlatform() {
     const liqCr = (liqGoal / 10000000).toFixed(2);
     const horizon = cInfo.goals?.[0]?.horizonYears || 2;
     const rProfile = (cInfo.riskProfile || "moderate").toUpperCase();
+
+    if (els.activeAccountName) els.activeAccountName.textContent = cName;
+    if (els.activeAccountMeta) els.activeAccountMeta.textContent = `₹${nwCr} Cr • ${cPersona.split('|')[0].trim()}`;
+    if (els.activeAccountDot) {
+      els.activeAccountDot.style.background = state.data.clientId === "CLIENT_CUSTOM" ? "var(--brand-amber)" : "#a855f7";
+    }
+    if (els.btnDeleteActiveProfile) {
+      els.btnDeleteActiveProfile.style.display = "inline-flex";
+    }
 
     els.clientName.textContent = cName;
     els.clientPersona.textContent = `${cPersona} | ${rProfile} RISK`;
@@ -894,141 +914,162 @@ els.tabButtons.forEach(btn => {
   });
 });
 
-// Portfolio Account Switching
-els.btnPortfolio1.addEventListener("click", () => loadPortfolio("scenario_001"));
-els.btnPortfolio2.addEventListener("click", () => loadPortfolio("scenario_002"));
+// Portfolio Account Switching (Dropdown handles dynamic accounts, keeping legacy fallback guarded)
+if (els.btnPortfolio1) {
+  els.btnPortfolio1.addEventListener("click", () => loadPortfolio("scenario_001"));
+}
+if (els.btnPortfolio2) {
+  els.btnPortfolio2.addEventListener("click", () => loadPortfolio("scenario_002"));
+}
 if (els.btnPortfolio3) {
   els.btnPortfolio3.addEventListener("click", () => loadPortfolio("scenario_custom"));
 }
 
 // Mandate Rebalance Button
-els.btnUpdateMandate.addEventListener("click", async () => {
-  els.btnUpdateMandate.disabled = true;
-  els.btnUpdateMandate.innerHTML = "<span>Optimizing Multi-Agent Strategy...</span>";
-
-  if (state.apiAvailable) {
-    try {
-      const clientId = resolveClientId(state.currentPortfolio);
-      const goal = `Target liquidity ${els.inputTargetLiquidity.value} over ${els.selectHorizon.value} years under ${els.selectMandate.value} mandate.`;
-      
-      const res = await fetch("/api/run", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ clientId, goal, maxRevisionRounds: 3 })
-      });
-
-      if (res.ok) {
-        state.data = await res.json();
-        renderPlatform();
-      }
-    } catch (e) {
-      console.warn("API rebalance call failed, updating local state", e);
-    }
-  }
-
-  // Visual confirmation
-  setTimeout(() => {
-    els.btnUpdateMandate.disabled = false;
-    els.btnUpdateMandate.innerHTML = "<span>Apply & Rebalance</span>";
-  }, 600);
-});
-
-// Authorize & Execute Button
-els.btnToggleApproval.addEventListener("click", async () => {
-  state.isApproved = !state.isApproved;
-
-  if (state.isApproved) {
-    els.btnToggleApproval.className = "btn btn-secondary";
-    els.btnToggleApproval.innerHTML = "<span>✓ Orders Dispatched</span>";
+if (els.btnUpdateMandate) {
+  els.btnUpdateMandate.addEventListener("click", async () => {
+    els.btnUpdateMandate.disabled = true;
+    els.btnUpdateMandate.innerHTML = "<span>Optimizing Multi-Agent Strategy...</span>";
 
     if (state.apiAvailable) {
       try {
-        const clientId = state.currentPortfolio === "scenario_001" ? "CLIENT_001" 
-          : (state.currentPortfolio === "scenario_002" ? "CLIENT_002" : "CLIENT_CUSTOM");
-        await fetch("/api/execute", {
+        const clientId = resolveClientId(state.currentPortfolio);
+        const goal = `Target liquidity ${els.inputTargetLiquidity?.value || '20000000'} over ${els.selectHorizon?.value || 2} years under ${els.selectMandate?.value || 'balanced'} mandate.`;
+        
+        const res = await fetch("/api/run", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ clientId, approved: true })
+          body: JSON.stringify({ clientId, goal, maxRevisionRounds: 3 })
         });
+
+        if (res.ok) {
+          state.data = await res.json();
+          renderPlatform();
+        }
       } catch (e) {
-        console.warn("Live execution dispatch failed", e);
+        console.warn("API rebalance call failed, updating local state", e);
       }
     }
-  } else {
-    resetApprovalButton();
-  }
 
-  const isClient1 = state.currentPortfolio === "scenario_001";
-  const isClient2 = state.currentPortfolio === "scenario_002";
-  const rankNum = resolveRankNum(state.selectedStrategyId, isClient1, isClient2);
-  renderTradeTable(state.selectedStrategyId, isClient1, isClient2, rankNum);
-});
+    // Visual confirmation
+    setTimeout(() => {
+      els.btnUpdateMandate.disabled = false;
+      els.btnUpdateMandate.innerHTML = "<span>Apply & Rebalance</span>";
+    }, 600);
+  });
+}
+
+// Authorize & Execute Button
+if (els.btnToggleApproval) {
+  els.btnToggleApproval.addEventListener("click", async () => {
+    state.isApproved = !state.isApproved;
+
+    if (state.isApproved) {
+      els.btnToggleApproval.className = "btn btn-secondary";
+      els.btnToggleApproval.innerHTML = "<span>✓ Orders Dispatched</span>";
+
+      if (state.apiAvailable) {
+        try {
+          const clientId = resolveClientId(state.currentPortfolio);
+          await fetch("/api/execute", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ clientId, approved: true })
+          });
+        } catch (e) {
+          console.warn("Live execution dispatch failed", e);
+        }
+      }
+    } else {
+      resetApprovalButton();
+    }
+
+    const isClient1 = state.currentPortfolio === "scenario_001";
+    const isClient2 = state.currentPortfolio === "scenario_002";
+    const rankNum = resolveRankNum(state.selectedStrategyId, isClient1, isClient2);
+    renderTradeTable(state.selectedStrategyId, isClient1, isClient2, rankNum);
+  });
+}
 
 // Custom Mandate Modal
-els.btnCustomMandate.addEventListener("click", () => {
-  els.customMandateModal.classList.add("open");
-});
+if (els.btnCustomMandate) {
+  els.btnCustomMandate.addEventListener("click", () => {
+    els.customMandateModal?.classList.add("open");
+  });
+}
 
-els.btnCloseModal.addEventListener("click", () => {
-  els.customMandateModal.classList.remove("open");
-});
+if (els.btnCloseModal) {
+  els.btnCloseModal.addEventListener("click", () => {
+    els.customMandateModal?.classList.remove("open");
+  });
+}
 
-els.btnCancelModal.addEventListener("click", () => {
-  els.customMandateModal.classList.remove("open");
-});
+if (els.btnCancelModal) {
+  els.btnCancelModal.addEventListener("click", () => {
+    els.customMandateModal?.classList.remove("open");
+  });
+}
 
-els.btnSubmitModal.addEventListener("click", async () => {
-  const selectedClient = els.modalClientSelect.value;
-  const portfolioId = selectedClient === "CLIENT_001" ? "scenario_001" 
-    : (selectedClient === "CLIENT_002" ? "scenario_002" : "scenario_custom");
+if (els.btnSubmitModal) {
+  els.btnSubmitModal.addEventListener("click", async () => {
+    const selectedClient = els.modalClientSelect?.value || "CLIENT_001";
+    const portfolioId = selectedClient === "CLIENT_001" ? "scenario_001" 
+      : (selectedClient === "CLIENT_002" ? "scenario_002" : "scenario_custom");
 
-  els.btnSubmitModal.disabled = true;
-  els.btnSubmitModal.innerHTML = "<span>Running Multi-Agent Optimization...</span>";
+    els.btnSubmitModal.disabled = true;
+    els.btnSubmitModal.innerHTML = "<span>Running Multi-Agent Optimization...</span>";
 
-  if (state.apiAvailable) {
-    try {
-      const goal = els.modalMandateGoal.value || `Liquidity need ${els.modalLiquidityInput.value} in ${els.modalHorizonSelect.value} years.`;
-      const res = await fetch("/api/run", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ clientId: selectedClient, goal, maxRevisionRounds: 3 })
-      });
+    if (state.apiAvailable) {
+      try {
+        const goal = els.modalMandateGoal?.value || `Liquidity need ${els.modalLiquidityInput?.value || '2 Cr'} in ${els.modalHorizonSelect?.value || 2} years.`;
+        const res = await fetch("/api/run", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ clientId: selectedClient, goal, maxRevisionRounds: 3 })
+        });
 
-      if (res.ok) {
-        state.data = await res.json();
-        state.currentPortfolio = portfolioId;
-        renderPlatform();
-        els.customMandateModal.classList.remove("open");
-        return;
+        if (res.ok) {
+          state.data = await res.json();
+          state.currentPortfolio = portfolioId;
+          renderPlatform();
+          els.customMandateModal?.classList.remove("open");
+          return;
+        }
+      } catch (e) {
+        console.warn("API run failed, loading static snapshot", e);
+      } finally {
+        els.btnSubmitModal.disabled = false;
+        els.btnSubmitModal.innerHTML = "<span>Run Wealth Optimization</span>";
       }
-    } catch (e) {
-      console.warn("API run failed, loading static snapshot", e);
-    } finally {
-      els.btnSubmitModal.disabled = false;
-      els.btnSubmitModal.innerHTML = "<span>Run Wealth Optimization</span>";
     }
-  }
 
-  els.customMandateModal.classList.remove("open");
-  await loadPortfolio(portfolioId);
-});
+    els.customMandateModal?.classList.remove("open");
+    await loadPortfolio(portfolioId);
+  });
+}
 
 // Top Action Run Advisory Button
-els.btnRunAdvisory.addEventListener("click", () => {
-  els.btnUpdateMandate.click();
-});
+if (els.btnRunAdvisory) {
+  els.btnRunAdvisory.addEventListener("click", () => {
+    if (els.btnUpdateMandate) {
+      els.btnUpdateMandate.click();
+    }
+  });
+}
 
 // Export Briefing Button
-els.btnExportBriefing.addEventListener("click", () => {
-  if (!state.data) return;
-  const blob = new Blob([JSON.stringify(state.data, null, 2)], { type: "application/json" });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = `WealthPilot_${state.currentPortfolio}_Briefing.json`;
-  a.click();
-  URL.revokeObjectURL(url);
-});
+if (els.btnExportBriefing) {
+  els.btnExportBriefing.addEventListener("click", () => {
+    if (!state.data) return;
+    const blob = new Blob([JSON.stringify(state.data, null, 2)], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `WealthPilot_${state.currentPortfolio}_Briefing.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+  });
+}
 
 // ==============================================================================
 // 4. VERIFIED INSTITUTIONAL FALLBACK SNAPSHOTS
@@ -1461,47 +1502,152 @@ if (els.btnSubmitNewModal) {
   });
 }
 
-// Synchronize Scenarios with Backend
+// Synchronize Scenarios with Backend & Populate Anti-Clustering Dropdown
 async function syncScenarios(activeScenarioIdToSelect) {
-  if (!els.navScenarioContainer) return;
   try {
     const res = await fetch("/api/scenarios");
-    if (res.ok) {
-      const data = await res.json();
-      const scenarios = data.scenarios || [];
+    if (!res.ok) return;
+    const data = await res.json();
+    const scenarios = data.scenarios || [];
 
-      // Rebuild pills inside navScenarioContainer
-      els.navScenarioContainer.innerHTML = "";
+    if (els.dropdownCountBadge) {
+      els.dropdownCountBadge.textContent = `${scenarios.length} Accounts`;
+    }
+
+    if (els.dropdownItemsContainer) {
+      els.dropdownItemsContainer.innerHTML = "";
       scenarios.forEach(sc => {
-        const btn = document.createElement("button");
-        btn.className = "scenario-pill";
-        if (sc.id === (activeScenarioIdToSelect || state.currentPortfolio)) {
-          btn.classList.add("active");
-        }
-        btn.setAttribute("data-portfolio", sc.id);
+        const isActive = sc.id === (activeScenarioIdToSelect || state.currentPortfolio);
+        const item = document.createElement("div");
+        item.className = `dropdown-item ${isActive ? 'active' : ''}`;
 
         const dotColor = sc.id === "scenario_001" ? "var(--brand-emerald)"
           : (sc.id === "scenario_002" ? "var(--brand-cyan)" 
           : (sc.id === "scenario_custom" ? "var(--brand-amber)" : "#a855f7"));
 
         const shortNetWorth = sc.netWorthINR ? `₹${(sc.netWorthINR / 10000000).toFixed(0)} Cr` : "";
-        btn.innerHTML = `
-          <span class="status-dot" style="background: ${dotColor};"></span>
-          <span>${sc.title.split("—")[0].trim()} (${shortNetWorth})</span>
+        const cleanTitle = sc.title.split("—")[0].trim();
+        const personaSub = sc.persona ? sc.persona.split("|")[0].trim() : "Private Client";
+
+        // Deletable: Allow removing custom accounts and Vikram Malhotra
+        const canDelete = sc.id !== "scenario_001" && sc.id !== "scenario_002";
+
+        item.innerHTML = `
+          <div class="dropdown-item-left">
+            <span class="status-dot" style="background: ${dotColor};"></span>
+            <div class="dropdown-item-info">
+              <span class="dropdown-item-name">${cleanTitle}</span>
+              <span class="dropdown-item-sub">${shortNetWorth} • ${personaSub}</span>
+            </div>
+          </div>
+          <div class="dropdown-item-actions">
+            ${isActive ? '<span style="color: var(--brand-primary); font-weight: 800; font-size: 13px;">✓</span>' : ''}
+            ${canDelete ? `<button class="btn-remove-profile" data-client="${sc.clientId}" data-title="${cleanTitle}" title="Remove ${cleanTitle}">✕</button>` : ''}
+          </div>
         `;
 
-        btn.addEventListener("click", () => {
-          document.querySelectorAll(".scenario-pill").forEach(p => p.classList.remove("active"));
-          btn.classList.add("active");
+        // Switch to account on click
+        item.addEventListener("click", (e) => {
+          if (e.target.closest(".btn-remove-profile")) return;
+          els.accountSelectorWrapper?.classList.remove("open");
           loadPortfolio(sc.id);
         });
 
-        els.navScenarioContainer.appendChild(btn);
+        // Delete account on button click
+        if (canDelete) {
+          const delBtn = item.querySelector(".btn-remove-profile");
+          delBtn.addEventListener("click", async (e) => {
+            e.stopPropagation();
+            const targetCid = delBtn.getAttribute("data-client");
+            const targetTitle = delBtn.getAttribute("data-title");
+            await deletePortfolio(targetCid, targetTitle);
+          });
+        }
+
+        els.dropdownItemsContainer.appendChild(item);
       });
+    }
+
+    // Update active trigger button
+    const activeSc = scenarios.find(s => s.id === (activeScenarioIdToSelect || state.currentPortfolio)) || scenarios[0];
+    if (activeSc && els.activeAccountName) {
+      els.activeAccountName.textContent = activeSc.title.split("—")[0].trim();
+      const shortNetWorth = activeSc.netWorthINR ? `₹${(activeSc.netWorthINR / 10000000).toFixed(0)} Cr` : "";
+      const personaSub = activeSc.persona ? activeSc.persona.split("|")[0].trim() : "Portfolio";
+      if (els.activeAccountMeta) els.activeAccountMeta.textContent = `${shortNetWorth} • ${personaSub}`;
+      const dotColor = activeSc.id === "scenario_001" ? "var(--brand-emerald)"
+        : (activeSc.id === "scenario_002" ? "var(--brand-cyan)" 
+        : (activeSc.id === "scenario_custom" ? "var(--brand-amber)" : "#a855f7"));
+      if (els.activeAccountDot) els.activeAccountDot.style.background = dotColor;
     }
   } catch (e) {
     console.warn("Could not sync scenarios from backend", e);
   }
+}
+
+// Delete Portfolio Function
+async function deletePortfolio(clientId, title) {
+  const confirmed = confirm(`Are you sure you want to remove the portfolio account "${title || clientId}"?\nThis will remove the client profile and associated holdings.`);
+  if (!confirmed) return;
+
+  try {
+    const res = await fetch("/api/portfolio/delete", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ clientId })
+    });
+
+    if (!res.ok) {
+      const err = await res.json();
+      throw new Error(err.error || "Failed to delete portfolio account.");
+    }
+
+    // If currently on the deleted account, switch back to scenario_001
+    const currentCid = resolveClientId(state.currentPortfolio);
+    if (currentCid === clientId.toUpperCase()) {
+      await loadPortfolio("scenario_001");
+      await syncScenarios("scenario_001");
+    } else {
+      await syncScenarios(state.currentPortfolio);
+    }
+  } catch (err) {
+    alert("Error deleting account: " + err.message);
+  }
+}
+
+// Account Switcher Dropdown Interaction Listeners
+if (els.btnAccountDropdown) {
+  els.btnAccountDropdown.addEventListener("click", (e) => {
+    e.stopPropagation();
+    els.accountSelectorWrapper?.classList.toggle("open");
+  });
+}
+
+// Close dropdown on outside click
+document.addEventListener("click", (e) => {
+  if (els.accountSelectorWrapper && !els.accountSelectorWrapper.contains(e.target)) {
+    els.accountSelectorWrapper.classList.remove("open");
+  }
+});
+
+// Dropdown footer "+ Onboard New Portfolio"
+if (els.btnDropdownCreateNew) {
+  els.btnDropdownCreateNew.addEventListener("click", () => {
+    els.accountSelectorWrapper?.classList.remove("open");
+    els.newPortfolioModal.classList.add("open");
+    if (!currentNewHoldings.length) {
+      prefillNewPortfolioDemo();
+    }
+  });
+}
+
+// Mandate Bar Remove Active Profile Button
+if (els.btnDeleteActiveProfile) {
+  els.btnDeleteActiveProfile.addEventListener("click", async () => {
+    const activeCid = resolveClientId(state.currentPortfolio);
+    const activeName = els.clientName.textContent || activeCid;
+    await deletePortfolio(activeCid, activeName);
+  });
 }
 
 // Initialize on Load
